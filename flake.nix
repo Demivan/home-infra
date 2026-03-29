@@ -17,10 +17,20 @@
           default = pkgs.mkShell {
             packages = with pkgs; [
               opentofu
+              talosctl
+              kubectl
+              kubernetes-helm
+              cilium-cli
+              argocd
+              velero
+              rustic
+              # backblaze-b2  # TODO: broken in nixpkgs, add back for operations plan
+              jq
+              yq-go
             ];
 
             shellHook = ''
-
+              echo "Homelab infra shell ready"
             '';
           };
         });
