@@ -4,7 +4,7 @@ resource "talos_image_factory_schematic" "this" {
       systemExtensions = {
         officialExtensions = [
           "siderolabs/qemu-guest-agent",
-          "siderolabs/nfs-mount",
+          "siderolabs/nfs-utils",
           "siderolabs/iscsi-tools",
         ]
       }
