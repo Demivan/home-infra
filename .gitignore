@@ -39,5 +39,12 @@ terraform.rc
 # Direnv
 .direnv/
 
+# Talos secrets and generated configs
+talos/secrets.yaml
+talos/_out/
+
+# Kubeconfig
+kubeconfig
+
 # Superpowers plans (session-specific, not needed in repo)
 docs/superpowers/

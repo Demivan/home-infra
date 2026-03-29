@@ -2,7 +2,7 @@ resource "hcloud_server" "controlplane" {
   name        = "k8s-cp-1"
   server_type = var.server_type
   location    = var.location
-  image       = var.talos_image_id
+  image       = imager_image.talos.image_id
 
   firewall_ids = [hcloud_firewall.kubernetes.id]
 

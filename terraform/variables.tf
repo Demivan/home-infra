@@ -16,7 +16,8 @@ variable "location" {
   default     = "hel1"
 }
 
-variable "talos_image_id" {
-  description = "Hetzner Cloud snapshot ID for Talos Linux ARM64 image"
+variable "talos_version" {
+  description = "Talos Linux version to deploy"
   type        = string
+  default     = "v1.12.6"
 }

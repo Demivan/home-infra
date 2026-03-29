@@ -12,6 +12,14 @@ terraform {
       source  = "hetznercloud/hcloud"
       version = "~> 1.60"
     }
+    talos = {
+      source  = "siderolabs/talos"
+      version = "~> 0.7"
+    }
+    imager = {
+      source  = "hcloud-talos/imager"
+      version = "~> 0.1"
+    }
   }
 }
 
