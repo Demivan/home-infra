@@ -1,19 +1,17 @@
-output "network_id" {
-  value = hcloud_network.kubernetes.id
-}
-
 output "server_ipv4" {
-  value = hcloud_server.controlplane.ipv4_address
+  value = module.talos.public_ipv4_list[0]
 }
 
-output "server_ipv6" {
-  value = hcloud_server.controlplane.ipv6_address
+output "network_id" {
+  value = module.talos.hetzner_network_id
 }
 
-output "volume_id" {
-  value = hcloud_volume.data.id
+output "talosconfig" {
+  value     = module.talos.talosconfig
+  sensitive = true
 }
 
-output "volume_linux_device" {
-  value = hcloud_volume.data.linux_device
+output "kubeconfig" {
+  value     = module.talos.kubeconfig
+  sensitive = true
 }
