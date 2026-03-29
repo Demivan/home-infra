@@ -7,13 +7,13 @@ variable "hcloud_token" {
 variable "server_type" {
   description = "Hetzner Cloud server type"
   type        = string
-  default     = "cax31"
+  default     = "cx43"
 }
 
 variable "location" {
   description = "Hetzner Cloud datacenter location"
   type        = string
-  default     = "hel1"
+  default     = "fsn1"
 }
 
 variable "talos_version" {
