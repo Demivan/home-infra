@@ -1,0 +1,25 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres
+spec:
+  instances: 1
+  storage:
+    size: 10Gi
+    storageClass: hcloud-volumes
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+  priorityClassName: platform
+  managed:
+    roles:
+      - name: authentik
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        passwordSecret:
+          name: authentik-db-credentials
