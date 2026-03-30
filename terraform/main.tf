@@ -24,10 +24,6 @@ terraform {
       source  = "Infisical/infisical"
       version = "~> 0.16"
     }
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 5.0"
-    }
   }
 }
 
@@ -43,12 +39,6 @@ data "infisical_secrets" "main" {
 locals {
   hcloud_token        = data.infisical_secrets.main.secrets["hcloud-token"].value
   storagebox_password = data.infisical_secrets.main.secrets["storagebox-password"].value
-  cloudflare_api_token = data.infisical_secrets.main.secrets["cloudflare-api-token"].value
-  cloudflare_account_id = data.infisical_secrets.main.secrets["cloudflare-account-id"].value
-}
-
-provider "cloudflare" {
-  api_token = local.cloudflare_api_token
 }
 
 provider "hcloud" {
@@ -122,64 +112,6 @@ module "talos" {
     "net.ipv4.conf.all.rp_filter"     = "0"
     "net.ipv4.conf.default.rp_filter" = "0"
   }
-}
-
-# Cloudflare Tunnel for ingress (replaces Hetzner LB)
-resource "cloudflare_zero_trust_tunnel_cloudflared" "homelab" {
-  account_id    = local.cloudflare_account_id
-  name          = "homelab"
-  config_src    = "cloudflare"
-  tunnel_secret = base64encode(data.infisical_secrets.main.secrets["cloudflare-tunnel-secret"].value)
-}
-
-# Fetch tunnel token and store in Infisical for K8s ExternalSecret
-data "cloudflare_zero_trust_tunnel_cloudflared_token" "homelab" {
-  account_id = local.cloudflare_account_id
-  tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.homelab.id
-}
-
-resource "infisical_secret" "tunnel_token" {
-  name         = "cloudflare-tunnel-token"
-  value        = data.cloudflare_zero_trust_tunnel_cloudflared_token.homelab.token
-  env_slug     = "prod"
-  workspace_id = "d17420b0-619f-4c69-a409-59bf89441439"
-  folder_path  = "/"
-}
-
-# Tunnel ingress rules (remote config - cloudflared reads these from Cloudflare)
-resource "cloudflare_zero_trust_tunnel_cloudflared_config" "homelab" {
-  account_id = local.cloudflare_account_id
-  tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.homelab.id
-  config = {
-    ingress = [
-      {
-        hostname = "*.kube.demivan.me"
-        service  = "http://cilium-gateway-homelab.gateway.svc:80"
-      },
-      {
-        service = "http_status:404"
-      },
-    ]
-  }
-}
-
-# Wildcard DNS CNAME pointing to the tunnel
-data "cloudflare_zone" "demivan" {
-  filter = {
-    name = "demivan.me"
-    account = {
-      id = local.cloudflare_account_id
-    }
-  }
-}
-
-resource "cloudflare_dns_record" "tunnel_wildcard" {
-  zone_id = data.cloudflare_zone.demivan.id
-  name    = "*.kube"
-  type    = "CNAME"
-  content = "${cloudflare_zero_trust_tunnel_cloudflared.homelab.id}.cfargotunnel.com"
-  proxied = true
-  ttl     = 1 # Auto TTL when proxied
 }
 
 # Storage Box for bulk data (Immich photos, oCIS files, DB dumps)
