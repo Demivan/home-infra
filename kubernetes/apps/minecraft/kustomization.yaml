@@ -21,6 +21,9 @@ helmCharts:
         viewDistance: 8
         maxTickTime: 300000
         spawnProtection: 0
+        rcon:
+          enabled: true
+          withGeneratedPassword: true
         serviceType: LoadBalancer
         loadBalancerClass: tailscale
       serviceAnnotations:
