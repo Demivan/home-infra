@@ -1,0 +1,9 @@
+# Machine Identity ID from Infisical (not sensitive — auth is via K8s SA token)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: infisical-identity
+  namespace: external-secrets
+type: Opaque
+stringData:
+  identityId: "af169b45-19fb-44c2-b0f8-29abfc2fbf71"
