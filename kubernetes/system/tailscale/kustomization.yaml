@@ -9,4 +9,5 @@ helmCharts:
     namespace: tailscale
 
 resources:
+  - namespace.yaml
   - operator-oauth.yaml
