@@ -46,5 +46,8 @@ talos/_out/
 # Kubeconfig
 kubeconfig
 
+# Kustomize Helm chart cache
+kubernetes/**/charts/
+
 # Superpowers plans (session-specific, not needed in repo)
 docs/superpowers/

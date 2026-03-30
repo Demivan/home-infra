@@ -20,6 +20,7 @@
               talosctl
               kubectl
               kubernetes-helm
+              kustomize
               cilium-cli
               argocd
               velero
