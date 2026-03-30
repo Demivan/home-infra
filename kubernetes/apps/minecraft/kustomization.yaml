@@ -14,14 +14,44 @@ helmCharts:
         eula: "TRUE"
         type: GTNH
         memory: 12G
+        jvmOpts: >-
+          -Dfml.readTimeout=180
+          -Dfml.queryResult=confirm
+          -Dfile.encoding=UTF-8
+        viewDistance: 8
+        maxTickTime: 300000
+        spawnProtection: 0
         serviceType: LoadBalancer
         loadBalancerClass: tailscale
       serviceAnnotations:
         tailscale.com/hostname: minecraft
       extraEnv:
         GTNH_PACK_VERSION: "2.8.4"
+        INIT_MEMORY: "12G"
+        EXEC_DIRECTLY: "true"
+        STOP_SERVER_ANNOUNCE_DELAY: "30"
+      startupProbe:
+        enabled: true
+        failureThreshold: 60
+        periodSeconds: 10
+      livenessProbe:
+        initialDelaySeconds: 600
+        periodSeconds: 10
+        failureThreshold: 30
+      readinessProbe:
+        initialDelaySeconds: 600
+        periodSeconds: 10
+        failureThreshold: 30
       extraPodSpec:
         priorityClassName: best-effort
+      extraVolumes:
+        - volumeMounts:
+            - name: server-config
+              mountPath: /data/local/serverutilities
+          volumes:
+            - name: server-config
+              configMap:
+                name: minecraft-serverutilities
       persistence:
         dataDir:
           enabled: true
@@ -30,3 +60,6 @@ helmCharts:
         requests:
           cpu: "2"
           memory: 4Gi
+
+resources:
+  - serverutilities-config.yaml

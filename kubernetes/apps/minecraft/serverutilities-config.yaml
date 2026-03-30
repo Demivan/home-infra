@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minecraft-serverutilities
+data:
+  ranks.txt: |
+    [default]
+      power: 0
+      ftbu.claims.max_chunks: 100
+      ftbu.chunkloading.max_chunks: 50
+
+    [admin]
+      parent: default
+      power: 100
+      ftbu.claims.max_chunks: 500
+      ftbu.chunkloading.max_chunks: 100
