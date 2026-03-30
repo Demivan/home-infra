@@ -111,11 +111,9 @@ module "talos" {
     },
   ]
 
-  # Cilium: use module defaults for bootstrap, enable Gateway API when ArgoCD takes over
-  deploy_cilium = true
-
-  # Hetzner CCM for cloud integration
-  deploy_hcloud_ccm = true
+  # Cilium and CCM managed by ArgoCD, not bootstrap
+  deploy_cilium     = false
+  deploy_hcloud_ccm = false
 
   # Sysctls for Cilium
   sysctls_extra_args = {
@@ -128,15 +126,21 @@ module "talos" {
 
 # Cloudflare Tunnel for ingress (replaces Hetzner LB)
 resource "cloudflare_zero_trust_tunnel_cloudflared" "homelab" {
-  account_id = local.cloudflare_account_id
-  name       = "homelab"
-  secret     = base64encode(data.infisical_secrets.main.secrets["cloudflare-tunnel-secret"].value)
+  account_id    = local.cloudflare_account_id
+  name          = "homelab"
+  config_src    = "cloudflare"
+  tunnel_secret = base64encode(data.infisical_secrets.main.secrets["cloudflare-tunnel-secret"].value)
 }
 
-# Store tunnel token in Infisical for K8s ExternalSecret
+# Fetch tunnel token and store in Infisical for K8s ExternalSecret
+data "cloudflare_zero_trust_tunnel_cloudflared_token" "homelab" {
+  account_id = local.cloudflare_account_id
+  tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.homelab.id
+}
+
 resource "infisical_secret" "tunnel_token" {
   name         = "cloudflare-tunnel-token"
-  value        = cloudflare_zero_trust_tunnel_cloudflared.homelab.tunnel_token
+  value        = data.cloudflare_zero_trust_tunnel_cloudflared_token.homelab.token
   env_slug     = "prod"
   workspace_id = "d17420b0-619f-4c69-a409-59bf89441439"
   folder_path  = "/"
@@ -160,18 +164,22 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "homelab" {
 }
 
 # Wildcard DNS CNAME pointing to the tunnel
-data "cloudflare_zones" "demivan" {
+data "cloudflare_zone" "demivan" {
   filter = {
     name = "demivan.me"
+    account = {
+      id = local.cloudflare_account_id
+    }
   }
 }
 
 resource "cloudflare_dns_record" "tunnel_wildcard" {
-  zone_id = data.cloudflare_zones.demivan.result[0].id
+  zone_id = data.cloudflare_zone.demivan.id
   name    = "*.kube"
   type    = "CNAME"
   content = "${cloudflare_zero_trust_tunnel_cloudflared.homelab.id}.cfargotunnel.com"
   proxied = true
+  ttl     = 1 # Auto TTL when proxied
 }
 
 # Storage Box for bulk data (Immich photos, oCIS files, DB dumps)
