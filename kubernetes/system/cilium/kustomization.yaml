@@ -1,0 +1,50 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: cilium
+    repo: https://helm.cilium.io/
+    version: "1.17.14"
+    releaseName: cilium
+    namespace: kube-system
+    valuesInline:
+      operator:
+        replicas: 1
+      ipam:
+        mode: kubernetes
+      routingMode: native
+      ipv4NativeRoutingCIDR: "10.0.16.0/20"
+      kubeProxyReplacement: true
+      bpf:
+        masquerade: false
+      loadBalancer:
+        acceleration: native
+      securityContext:
+        capabilities:
+          ciliumAgent:
+            - CHOWN
+            - KILL
+            - NET_ADMIN
+            - NET_RAW
+            - IPC_LOCK
+            - SYS_ADMIN
+            - SYS_RESOURCE
+            - DAC_OVERRIDE
+            - FOWNER
+            - SETGID
+            - SETUID
+          cleanCiliumState:
+            - NET_ADMIN
+            - SYS_ADMIN
+            - SYS_RESOURCE
+      cgroup:
+        autoMount:
+          enabled: false
+        hostRoot: /sys/fs/cgroup
+      k8sServiceHost: "127.0.0.1"
+      k8sServicePort: 7445
+      hubble:
+        enabled: false
+      gatewayAPI:
+        enabled: true
+      priorityClassName: infra-critical
