@@ -54,8 +54,10 @@ module "talos" {
     { id = 1, type = var.server_type }
   ]
 
-  # Firewall: lock Talos/K8s API to current IP, add rules for HTTP/HTTPS/Tailscale
-  firewall_use_current_ip = true
+  # Firewall: open Talos/K8s API for bootstrap (tighten to Tailscale in Plan 2)
+  # firewall_use_current_ip doesn't work with remote HCP Terraform runners
+  firewall_kube_api_source  = ["0.0.0.0/0", "::/0"]
+  firewall_talos_api_source = ["0.0.0.0/0", "::/0"]
   extra_firewall_rules = [
     {
       description = "HTTP"
