@@ -39,8 +39,9 @@ module "talos" {
   cluster_name = "homelab"
 
   # Hetzner
-  location_name = var.location
-  disable_arm   = true
+  location_name            = var.location
+  disable_arm              = true
+  kubeconfig_endpoint_mode = "public_ip"
 
   # Versions
   talos_version      = var.talos_version
@@ -82,15 +83,8 @@ module "talos" {
     },
   ]
 
-  # Cilium with kube-proxy replacement + Gateway API
+  # Cilium: use module defaults for bootstrap, enable Gateway API when ArgoCD takes over
   deploy_cilium = true
-  cilium_values = [
-    yamlencode({
-      kubeProxyReplacement = true
-      gatewayAPI           = { enabled = true }
-      ipam                 = { mode = "kubernetes" }
-    })
-  ]
 
   # Hetzner CCM for cloud integration
   deploy_hcloud_ccm = true
