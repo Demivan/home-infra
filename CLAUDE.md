@@ -5,13 +5,13 @@ Personal Kubernetes homelab on Hetzner Cloud, managed with OpenTofu + Talos Linu
 ## Architecture
 
 - **Compute:** 1x Hetzner CX43 (8 x86 vCPU / 16GB RAM), Falkenstein (`fsn1`), Talos Linux
-- **Networking:** Cilium (CNI + kube-proxy replacement), Tailscale (VPN mesh). Gateway API enabled when ArgoCD manages Cilium.
-- **Storage:** Hetzner CSI (dynamic PVs), Storage Box BX11 (1TB HDD) for bulk data via NFS
+- **Networking:** Cilium (CNI + kube-proxy replacement), Tailscale (VPN mesh), Gateway API CRDs (standard channel v1.2.1)
+- **Storage:** Hetzner CSI (dynamic PVs), Storage Box BX11 (1TB HDD, Terraform-managed) for bulk data via NFS
 - **Backup:** Velero (PVC snapshots) + Rustic (Storage Box data) → Backblaze B2
-- **Secrets:** HCP Vault Secrets (free tier) → External Secrets Operator → K8s Secrets
+- **Secrets:** Infisical → External Secrets Operator (Kubernetes Auth) → K8s Secrets. Also Infisical Terraform provider for OpenTofu secrets.
 - **State:** HCP Terraform (free tier) — remote state with locking
 - **Identity:** Authentik (SSO via OIDC/LDAP for all services)
-- **GitOps:** ArgoCD (app-of-apps with sync waves)
+- **GitOps:** ArgoCD with ApplicationSet (git directory generator), Kustomize + helmCharts
 - **DNS/TLS:** Cloudflare (demivan.me) via external-dns + cert-manager (DNS-01 wildcard)
 - **Monitoring:** VictoriaMetrics + Grafana
 - **Updates:** Renovate Bot on GitHub
@@ -31,33 +31,46 @@ Personal Kubernetes homelab on Hetzner Cloud, managed with OpenTofu + Talos Linu
 ```
 infra/
 ├── terraform/
-│   ├── main.tf              # HCP backend + hcloud-talos module (network, firewall, server, Talos bootstrap, Cilium, CCM)
+│   ├── main.tf              # HCP backend + hcloud-talos module + Infisical provider + Storage Box
 │   ├── talos-image.tf       # Talos image factory schematic + imager upload
-│   ├── variables.tf         # hcloud_token, server_type, location, talos/k8s versions
-│   └── outputs.tf           # server IP, network ID, talosconfig, kubeconfig
+│   ├── variables.tf         # server_type, location, talos/k8s versions (secrets from Infisical)
+│   └── outputs.tf           # server IP, network ID, talosconfig, kubeconfig, storagebox
 ├── kubernetes/
 │   ├── bootstrap/           # ArgoCD initial Helm values
-│   ├── root-app.yaml        # App-of-apps root Application
-│   ├── system/              # cilium, cert-manager, external-dns, argocd, cnpg,
-│   │                        # authentik, eso, velero, monitoring, tailscale,
-│   │                        # hetzner-ccm, hetzner-csi
+│   ├── root-app.yaml        # Points to kubernetes/system/, applies ApplicationSet
+│   ├── system/              # Each subdirectory = one ArgoCD Application (auto-discovered)
+│   │   ├── applicationset.yaml  # Git directory generator for system/*
+│   │   ├── argocd/          # ArgoCD self-management
+│   │   ├── cilium/          # Cilium + Gateway API CRDs
+│   │   ├── cert-manager/    # cert-manager + ClusterIssuers + ExternalSecret
+│   │   ├── external-dns/    # external-dns + ExternalSecret
+│   │   ├── external-secrets/ # ESO + Infisical ClusterSecretStore
+│   │   ├── hetzner-ccm/     # Hetzner CCM + ExternalSecret
+│   │   ├── hetzner-csi/     # Hetzner CSI driver
+│   │   ├── cnpg-system/     # CloudNativePG operator
+│   │   ├── tailscale/       # Tailscale operator + ExternalSecret
+│   │   └── common/          # Priority classes
 │   └── apps/                # immich, ocis, vaultwarden, radicale, minecraft
 ├── docs/                    # Architecture docs, plans
-└── flake.nix                # devShell + upload-talos-image package
+└── flake.nix                # devShell (opentofu, talosctl, kubectl, helm, kustomize, etc.)
 ```
 
 ## Key Conventions
 
 - **OpenTofu** (not Terraform) for all infrastructure provisioning
 - **x86_64 (amd64)** — switched from ARM due to availability/pricing
-- **FOSS preferred** throughout; exceptions: Hetzner, Backblaze B2, HCP (Vault Secrets + Terraform)
-- **Gateway API** (HTTPRoute + TCPRoute) — no Ingress API, no Traefik
-- **Hetzner CSI** for dynamic volume provisioning; static NFS PVs for Storage Box mounts
-- **Sync waves** in ArgoCD: Wave 0 (Cilium, CCM/CSI) → Wave 1 (cert-manager, external-dns, ESO, CNPG) → Wave 2 (Authentik + Redis + PG) → Wave 3 (apps)
+- **FOSS preferred** throughout; exceptions: Hetzner, Backblaze B2, HCP Terraform
+- **Kustomize + helmCharts** — each component is a kustomization.yaml with `helmCharts:` for upstream charts and `resources:` for extra manifests. No wrapper Helm charts.
+- **ApplicationSet** (git directory generator) — auto-discovers `kubernetes/system/*` directories. Folder name = namespace (`CreateNamespace=true`). No per-app Application manifests needed.
+- **Gateway API** (HTTPRoute) — no Ingress API, no Traefik. CRDs managed in Cilium kustomization.
+- **Hetzner CSI** for dynamic volume provisioning; static NFS PVs co-located with apps that need them
+- **ExternalSecrets co-located with consumers** — each component owns its ExternalSecret, not centralized
 - **Priority classes:** infra-critical (Cilium, CCM/CSI) > platform (ArgoCD, Authentik, cert-manager) > app-default (Immich, oCIS, etc.) > best-effort (Minecraft)
 - **Talos image extensions:** qemu-guest-agent, nfs-utils, iscsi-tools — baked via Image Factory schematic
 - **hcloud-talos module** (v3) manages Hetzner infra + Talos bootstrap + initial Cilium/CCM deploy
 - **HCP Terraform** runs apply remotely — `firewall_use_current_ip` doesn't work, use explicit source CIDRs
+- **Infisical** for all secrets — K8s Auth for ESO, Universal Auth (env vars) for Terraform
+- **Server-side diff** enabled in ArgoCD (`controller.diff.server.side: "true"`)
 - **Immich ML** needs explicit resource limits to avoid starving other pods during photo import
 - Secrets never in git — all via ESO + Infisical
 - Do not commit without user review
