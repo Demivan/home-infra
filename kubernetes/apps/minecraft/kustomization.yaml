@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: minecraft
+    repo: https://itzg.github.io/minecraft-server-charts/
+    version: "5.1.2"
+    releaseName: minecraft
+    namespace: minecraft
+    valuesInline:
+      image:
+        tag: java25
+      minecraftServer:
+        eula: "TRUE"
+        type: GTNH
+        memory: 12G
+        serviceType: LoadBalancer
+        loadBalancerClass: tailscale
+      serviceAnnotations:
+        tailscale.com/hostname: minecraft
+      extraEnv:
+        GTNH_PACK_VERSION: "2.8.4"
+      extraPodSpec:
+        priorityClassName: best-effort
+      persistence:
+        dataDir:
+          enabled: true
+          Size: 20Gi
+      resources:
+        requests:
+          cpu: "2"
+          memory: 12Gi
