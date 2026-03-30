@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: hcloud-csi
+    repo: https://charts.hetzner.cloud
+    version: "2.20.0"
+    releaseName: hetzner-csi
+    namespace: kube-system
+    valuesInline:
+      storageClasses:
+        - name: hcloud-volumes
+          defaultStorageClass: true
+          reclaimPolicy: Retain
+      controller:
+        priorityClassName: infra-critical
+      node:
+        priorityClassName: infra-critical
