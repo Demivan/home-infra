@@ -18,7 +18,7 @@ helmCharts:
           -Dfml.readTimeout=180
           -Dfml.queryResult=confirm
           -Dfile.encoding=UTF-8
-        viewDistance: 8
+        viewDistance: 12
         maxTickTime: 300000
         spawnProtection: 0
         rcon:
