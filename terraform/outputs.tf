@@ -15,3 +15,11 @@ output "kubeconfig" {
   value     = module.talos.kubeconfig
   sensitive = true
 }
+
+output "storagebox_server" {
+  value = hcloud_storage_box.data.server
+}
+
+output "storagebox_username" {
+  value = hcloud_storage_box.data.username
+}
