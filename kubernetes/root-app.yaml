@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/Demivan/home-infra.git
     targetRevision: main
-    path: kubernetes/system
+    path: kubernetes
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
