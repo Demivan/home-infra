@@ -10,10 +10,7 @@ spec:
   source:
     repoURL: https://github.com/Demivan/home-infra.git
     targetRevision: main
-    path: kubernetes
-    directory:
-      recurse: true
-      include: "*/application.yaml"
+    path: kubernetes/system
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
