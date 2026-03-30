@@ -54,10 +54,10 @@ infra/
 - **Gateway API** (HTTPRoute + TCPRoute) — no Ingress API, no Traefik
 - **Hetzner CSI** for dynamic volume provisioning; static NFS PVs for Storage Box mounts
 - **Sync waves** in ArgoCD: Wave 0 (Cilium, CCM/CSI) → Wave 1 (cert-manager, external-dns, ESO, CNPG) → Wave 2 (Authentik + Redis + PG) → Wave 3 (apps)
-- **Priority classes:** system-critical (Cilium, CCM/CSI) > platform (ArgoCD, Authentik, cert-manager) > app-default (Immich, oCIS, etc.) > best-effort (Minecraft)
+- **Priority classes:** infra-critical (Cilium, CCM/CSI) > platform (ArgoCD, Authentik, cert-manager) > app-default (Immich, oCIS, etc.) > best-effort (Minecraft)
 - **Talos image extensions:** qemu-guest-agent, nfs-utils, iscsi-tools — baked via Image Factory schematic
 - **hcloud-talos module** (v3) manages Hetzner infra + Talos bootstrap + initial Cilium/CCM deploy
 - **HCP Terraform** runs apply remotely — `firewall_use_current_ip` doesn't work, use explicit source CIDRs
 - **Immich ML** needs explicit resource limits to avoid starving other pods during photo import
-- Secrets never in git — all via ESO + HCP Vault Secrets
+- Secrets never in git — all via ESO + Infisical
 - Do not commit without user review

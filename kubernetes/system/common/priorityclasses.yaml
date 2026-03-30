@@ -1,0 +1,31 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: infra-critical
+value: 1000
+globalDefault: false
+description: "System-critical components: Cilium, Hetzner CCM/CSI"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: platform
+value: 500
+globalDefault: false
+description: "Platform services: ArgoCD, Authentik, cert-manager, external-dns, ESO"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: app-default
+value: 100
+globalDefault: true
+description: "Default for applications: Immich, oCIS, Vaultwarden, Radicale"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: best-effort
+value: 0
+globalDefault: false
+description: "Best-effort workloads: Minecraft (first evicted on OOM)"
