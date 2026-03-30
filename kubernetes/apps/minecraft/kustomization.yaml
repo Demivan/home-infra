@@ -29,4 +29,4 @@ helmCharts:
       resources:
         requests:
           cpu: "2"
-          memory: 12Gi
+          memory: 4Gi
