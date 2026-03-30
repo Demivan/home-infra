@@ -17,6 +17,11 @@ helmCharts:
           server.insecure: true
           controller.diff.server.side: "true"
       server:
+        ingress:
+          enabled: true
+          ingressClassName: tailscale
+          hostname: argocd
+          tls: true
         resources:
           requests:
             cpu: 50m
