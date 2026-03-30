@@ -13,9 +13,9 @@ helmCharts:
       configs:
         cm:
           kustomize.buildOptions: --enable-helm
-          controller.diff.server.side: "true"
         params:
           server.insecure: true
+          controller.diff.server.side: "true"
       server:
         resources:
           requests:
