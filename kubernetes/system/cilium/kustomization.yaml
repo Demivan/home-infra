@@ -47,6 +47,8 @@ helmCharts:
         enabled: false
       gatewayAPI:
         enabled: true
+        gatewayClass:
+          create: "true"
       priorityClassName: infra-critical
 
 resources:
