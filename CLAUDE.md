@@ -4,9 +4,9 @@ Personal Kubernetes homelab on Hetzner Cloud, managed with OpenTofu + Talos Linu
 
 ## Architecture
 
-- **Compute:** 1x Hetzner CAX31 (8 ARM vCPU / 16GB RAM), Helsinki (`hel1`), Talos Linux
-- **Networking:** Cilium (CNI + kube-proxy replacement + Gateway API), Tailscale (VPN mesh)
-- **Storage:** Hetzner Volume (30GB SSD) for DBs + fast I/O, Storage Box BX11 (1TB HDD) for bulk data via NFS
+- **Compute:** 1x Hetzner CX43 (8 x86 vCPU / 16GB RAM), Falkenstein (`fsn1`), Talos Linux
+- **Networking:** Cilium (CNI + kube-proxy replacement), Tailscale (VPN mesh). Gateway API enabled when ArgoCD manages Cilium.
+- **Storage:** Hetzner CSI (dynamic PVs), Storage Box BX11 (1TB HDD) for bulk data via NFS
 - **Backup:** Velero (PVC snapshots) + Rustic (Storage Box data) → Backblaze B2
 - **Secrets:** HCP Vault Secrets (free tier) → External Secrets Operator → K8s Secrets
 - **State:** HCP Terraform (free tier) — remote state with locking
@@ -30,27 +30,34 @@ Personal Kubernetes homelab on Hetzner Cloud, managed with OpenTofu + Talos Linu
 
 ```
 infra/
-├── terraform/           # Hetzner resources (node, network, volume, firewall)
-├── talos/               # Talos machine configs + patches
-├── kubernetes/          # ArgoCD app-of-apps
-│   ├── system/          # cilium, cert-manager, external-dns, argocd, cnpg,
-│   │                    # authentik, eso, velero, monitoring, tailscale,
-│   │                    # hetzner-ccm, hetzner-csi
-│   └── apps/            # immich, ocis, vaultwarden, radicale, minecraft
-├── docs/                # Architecture docs, plans, test plans
-└── flake.nix            # devShell
+├── terraform/
+│   ├── main.tf              # HCP backend + hcloud-talos module (network, firewall, server, Talos bootstrap, Cilium, CCM)
+│   ├── talos-image.tf       # Talos image factory schematic + imager upload
+│   ├── variables.tf         # hcloud_token, server_type, location, talos/k8s versions
+│   └── outputs.tf           # server IP, network ID, talosconfig, kubeconfig
+├── kubernetes/
+│   ├── bootstrap/           # ArgoCD initial Helm values
+│   ├── root-app.yaml        # App-of-apps root Application
+│   ├── system/              # cilium, cert-manager, external-dns, argocd, cnpg,
+│   │                        # authentik, eso, velero, monitoring, tailscale,
+│   │                        # hetzner-ccm, hetzner-csi
+│   └── apps/                # immich, ocis, vaultwarden, radicale, minecraft
+├── docs/                    # Architecture docs, plans
+└── flake.nix                # devShell + upload-talos-image package
 ```
 
 ## Key Conventions
 
 - **OpenTofu** (not Terraform) for all infrastructure provisioning
-- **ARM64 (aarch64)** — all container images must support linux/arm64
+- **x86_64 (amd64)** — switched from ARM due to availability/pricing
 - **FOSS preferred** throughout; exceptions: Hetzner, Backblaze B2, HCP (Vault Secrets + Terraform)
 - **Gateway API** (HTTPRoute + TCPRoute) — no Ingress API, no Traefik
-- **Static NFS PVs** for Storage Box mounts (per-app subpaths), not dynamic provisioner
+- **Hetzner CSI** for dynamic volume provisioning; static NFS PVs for Storage Box mounts
 - **Sync waves** in ArgoCD: Wave 0 (Cilium, CCM/CSI) → Wave 1 (cert-manager, external-dns, ESO, CNPG) → Wave 2 (Authentik + Redis + PG) → Wave 3 (apps)
 - **Priority classes:** system-critical (Cilium, CCM/CSI) > platform (ArgoCD, Authentik, cert-manager) > app-default (Immich, oCIS, etc.) > best-effort (Minecraft)
-- **Talos NFS extension** required for NFSv4 Storage Box mounts — include in machine config
+- **Talos image extensions:** qemu-guest-agent, nfs-utils, iscsi-tools — baked via Image Factory schematic
+- **hcloud-talos module** (v3) manages Hetzner infra + Talos bootstrap + initial Cilium/CCM deploy
+- **HCP Terraform** runs apply remotely — `firewall_use_current_ip` doesn't work, use explicit source CIDRs
 - **Immich ML** needs explicit resource limits to avoid starving other pods during photo import
 - Secrets never in git — all via ESO + HCP Vault Secrets
 - Do not commit without user review
