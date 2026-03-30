@@ -20,7 +20,6 @@ helmCharts:
         - demivan.me
       sources:
         - gateway-httproute
-        - gateway-tcproute
       policy: sync
       txtOwnerId: homelab
       priorityClassName: platform
