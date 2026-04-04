@@ -12,3 +12,4 @@ resources:
   - namespace.yaml
   - operator-oauth.yaml
   - dnsconfig.yaml
+  - connector.yaml
