@@ -1,0 +1,19 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: internal
+  namespace: cilium-gateway
+spec:
+  gatewayClassName: cilium-internal
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "*.home.demivan.me"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-home-demivan-me-tls
+      allowedRoutes:
+        namespaces:
+          from: All
