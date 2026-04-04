@@ -9,7 +9,7 @@ helmCharts:
     namespace: argocd
     valuesInline:
       global:
-        domain: argocd.kube.demivan.me
+        domain: argocd.home.demivan.me
       configs:
         cm:
           kustomize.buildOptions: --enable-helm
@@ -17,11 +17,6 @@ helmCharts:
           server.insecure: true
           controller.diff.server.side: "true"
       server:
-        ingress:
-          enabled: true
-          ingressClassName: tailscale
-          hostname: argocd
-          tls: true
         resources:
           requests:
             cpu: 50m
@@ -52,3 +47,6 @@ helmCharts:
             memory: 64Mi
           limits:
             memory: 128Mi
+
+resources:
+  - httproute.yaml

@@ -8,7 +8,7 @@ helmCharts:
     releaseName: vaultwarden
     namespace: vaultwarden
     valuesInline:
-      domain: "https://vaultwarden.taild84c78.ts.net"
+      domain: "https://vault.home.demivan.me"
 
       database:
         type: postgresql
@@ -27,7 +27,7 @@ helmCharts:
         enabled: true
         onlySSO: false
         signupsMatchEmail: true
-        authority: "https://authentik.taild84c78.ts.net/application/o/vaultwarden/"
+        authority: "https://auth.home.demivan.me/application/o/vaultwarden/"
         scopes: "openid email profile"
         pkce: true
         clientId:
@@ -42,11 +42,7 @@ helmCharts:
       invitationsAllowed: true
 
       ingress:
-        enabled: true
-        class: tailscale
-        hostname: vaultwarden
-        tls: true
-        nginxIngressAnnotations: false
+        enabled: false
 
       priorityClassName: app-default
 
@@ -59,3 +55,4 @@ helmCharts:
 
 resources:
   - externalsecret.yaml
+  - httproute.yaml

@@ -36,7 +36,7 @@ data:
           client_id: !Env VAULTWARDEN_OIDC_CLIENT_ID
           client_secret: !Env VAULTWARDEN_OIDC_CLIENT_SECRET
           redirect_uris:
-            - url: "https://vaultwarden.taild84c78.ts.net/identity/connect/oidc-signin"
+            - url: "https://vault.home.demivan.me/identity/connect/oidc-signin"
               matching_mode: strict
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
@@ -52,4 +52,4 @@ data:
           slug: vaultwarden
           policy_engine_mode: any
           provider: !Find [authentik_providers_oauth2.oauth2provider, [name, Vaultwarden]]
-          meta_launch_url: "https://vaultwarden.taild84c78.ts.net"
+          meta_launch_url: "https://vault.home.demivan.me"
