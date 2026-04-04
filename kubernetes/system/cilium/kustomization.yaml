@@ -4,7 +4,7 @@ kind: Kustomization
 helmCharts:
   - name: cilium
     repo: https://helm.cilium.io/
-    version: "1.17.14"
+    version: "1.18.8"
     releaseName: cilium
     namespace: kube-system
     valuesInline:
@@ -48,7 +48,7 @@ helmCharts:
       gatewayAPI:
         enabled: true
         gatewayClass:
-          create: "true"
+          create: "false"
       priorityClassName: infra-critical
 
 resources:
@@ -57,3 +57,4 @@ resources:
   - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.1/config/crd/standard/gateway.networking.k8s.io_grpcroutes.yaml
   - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.1/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
   - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.1/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+  - gateway-class.yaml

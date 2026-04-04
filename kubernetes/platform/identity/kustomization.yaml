@@ -62,5 +62,5 @@ helmCharts:
 
 resources:
   - externalsecret.yaml
-  - ingress.yaml
+  - httproute.yaml
   - blueprint-vaultwarden.yaml
