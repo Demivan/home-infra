@@ -11,3 +11,4 @@ helmCharts:
 resources:
   - namespace.yaml
   - operator-oauth.yaml
+  - dnsconfig.yaml
