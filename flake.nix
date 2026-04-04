@@ -28,6 +28,7 @@
               hcloud
               gh
               # backblaze-b2  # TODO: broken in nixpkgs, add back for operations plan
+              ripgrep
               jq
               yq-go
             ];
