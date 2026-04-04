@@ -6,7 +6,7 @@ Personal Kubernetes homelab on Hetzner Cloud, managed with OpenTofu + Talos Linu
 
 - **Compute:** 1x Hetzner CX43 (8 x86 vCPU / 16GB RAM), Falkenstein (`fsn1`), Talos Linux
 - **Networking:** Cilium (CNI + kube-proxy replacement), Tailscale (VPN mesh), Gateway API CRDs (standard channel v1.2.1)
-- **Internal DNS:** Split-horizon via `*.home.demivan.me` — CoreDNS rewrites to Cilium Gateway (ClusterIP), Tailscale Split DNS + Connector for tailnet client access
+- **Internal DNS:** Split-horizon via `*.home.demivan.me` — CoreDNS rewrites to Cilium Gateway (NodePort), Tailscale Split DNS + Connector for tailnet client access
 - **Storage:** Hetzner CSI (dynamic PVs), Storage Box BX11 (1TB HDD, Terraform-managed) for bulk data via NFS
 - **Backup:** Velero (PVC snapshots) + Rustic (Storage Box data) → Backblaze B2
 - **Secrets:** Infisical → External Secrets Operator (Kubernetes Auth) → K8s Secrets. Also Infisical Terraform provider for OpenTofu secrets.
@@ -67,7 +67,7 @@ infra/
 - **Kustomize + helmCharts** — each component is a kustomization.yaml with `helmCharts:` for upstream charts and `resources:` for extra manifests. No wrapper Helm charts.
 - **ApplicationSet** (git directory generator) — auto-discovers `kubernetes/system/*` directories. Folder name = namespace (`CreateNamespace=true`). No per-app Application manifests needed.
 - **Gateway API** (HTTPRoute) — no Ingress API, no Traefik. CRDs managed in Cilium kustomization.
-- **`cilium-internal` GatewayClass** — ClusterIP-backed (no Hetzner LB), used for all internal services via `*.home.demivan.me`
+- **`cilium-internal` GatewayClass** — NodePort-backed (no Hetzner LB), used for all internal services via `*.home.demivan.me`
 - **Split-horizon DNS** — CoreDNS rewrites `*.home.demivan.me` → `cilium-gateway-internal.cilium-gateway.svc.cluster.local`. Tailscale Connector advertises service CIDR `10.0.8.0/21`. Tailscale Split DNS (admin console) sends `home.demivan.me` queries to CoreDNS at `10.0.8.10`.
 - **Hetzner CSI** for dynamic volume provisioning; static NFS PVs co-located with apps that need them
 - **ExternalSecrets co-located with consumers** — each component owns its ExternalSecret, not centralized
