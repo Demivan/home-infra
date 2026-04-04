@@ -32,7 +32,7 @@ helmCharts:
             - name: cache
               parameters: "30"
             - name: forward
-              parameters: . 10.0.0.53
+              parameters: . 10.0.8.53
         - zones:
             - zone: .
           port: 53

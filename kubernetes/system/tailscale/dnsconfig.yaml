@@ -8,4 +8,4 @@ spec:
       repo: tailscale/k8s-nameserver
       tag: unstable
     service:
-      clusterIP: "10.0.0.53"
+      clusterIP: "10.0.8.53"
