@@ -1,0 +1,61 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: vaultwarden
+    repo: https://guerzon.github.io/vaultwarden
+    version: "0.35.1"
+    releaseName: vaultwarden
+    namespace: vaultwarden
+    valuesInline:
+      domain: "https://vaultwarden.taild84c78.ts.net"
+
+      database:
+        type: postgresql
+        host: postgres-rw.postgres.svc
+        port: "5432"
+        dbName: vaultwarden
+        username: vaultwarden
+        existingSecret: vaultwarden-db-credentials
+        existingSecretKey: password
+
+      adminToken:
+        existingSecret: vaultwarden-secrets
+        existingSecretKey: admin-token
+
+      sso:
+        enabled: true
+        onlySSO: false
+        signupsMatchEmail: true
+        authority: "https://authentik.taild84c78.ts.net/application/o/vaultwarden/"
+        scopes: "openid email profile"
+        pkce: true
+        clientId:
+          value: ""
+          existingSecretKey: sso-client-id
+        clientSecret:
+          value: ""
+          existingSecretKey: sso-client-secret
+        existingSecret: vaultwarden-secrets
+
+      signupsAllowed: false
+      invitationsAllowed: true
+
+      ingress:
+        enabled: true
+        class: tailscale
+        hostname: vaultwarden
+        tls: true
+        nginxIngressAnnotations: false
+
+      priorityClassName: app-default
+
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+
+resources:
+  - externalsecret.yaml

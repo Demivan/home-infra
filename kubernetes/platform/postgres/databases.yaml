@@ -7,3 +7,13 @@ spec:
   owner: authentik
   cluster:
     name: postgres
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: vaultwarden-db
+spec:
+  name: vaultwarden
+  owner: vaultwarden
+  cluster:
+    name: postgres

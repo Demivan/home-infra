@@ -21,6 +21,16 @@ helmCharts:
               secretKeyRef:
                 name: authentik-secrets
                 key: db-password
+          - name: VAULTWARDEN_OIDC_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: vaultwarden-oidc-client-id
+          - name: VAULTWARDEN_OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: vaultwarden-oidc-client-secret
       authentik:
         postgresql:
           host: postgres-rw.postgres.svc
@@ -46,7 +56,11 @@ helmCharts:
             memory: 512Mi
       postgresql:
         enabled: false
+      blueprints:
+        configMaps:
+          - blueprint-vaultwarden
 
 resources:
   - externalsecret.yaml
   - ingress.yaml
+  - blueprint-vaultwarden.yaml
