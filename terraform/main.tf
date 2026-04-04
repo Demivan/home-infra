@@ -18,7 +18,7 @@ terraform {
     }
     imager = {
       source  = "hcloud-talos/imager"
-      version = "~> 0.1"
+      version = "~> 1.0"
     }
     infisical = {
       source  = "Infisical/infisical"

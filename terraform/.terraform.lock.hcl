@@ -92,16 +92,21 @@ provider "registry.opentofu.org/hashicorp/tls" {
 }
 
 provider "registry.opentofu.org/hcloud-talos/imager" {
-  version     = "0.1.1"
-  constraints = "~> 0.1"
+  version     = "1.0.5"
+  constraints = "~> 1.0"
   hashes = [
-    "h1:En3a4FoMnU9jgAHTTU0mqbcpUKJbUoQgaWq+Lb/6kY0=",
-    "zh:126eb0a4870f6b81589d27724fdd4b113a49800a9f4bc2dd434229706b15df53",
-    "zh:182e6fd9d67a0d01f5c138741d647c6fe863a844ec6940d880c7a777745fa611",
-    "zh:1b651a5d06134b9e47335c9f99cbf1909dc06847bfa042620d9c9521efc5a1df",
-    "zh:935a104db5c9f779a40c101299516e822e161427976ccf16f12be542d4bff3c6",
-    "zh:ba0676726f71e5d2e641d26a7576b73e5f1300165d081cdde615b354062ac648",
-    "zh:cebad62171cbdbde026658bf0b442858617a6e70868a9c24e46405ba51712c64",
+    "h1:LVbVetD4sKg3Mp+2Bsl9uz8GpVn3pPVy8w7ws1Y+DoI=",
+    "h1:Wcho7nMsth1HC/cI2Pq4jMKPOmc20L5IcvdrHhSzXOQ=",
+    "h1:eOQItUrZeeqNaxWnPdolnoHycOnoBN08h+kyvebNBIM=",
+    "h1:mZK4ieZLmwEdNeXTs5UDdZfEm0S7+wEIJcTicH5Xhl4=",
+    "h1:nJzgZ19NlNPbBVEkqk9aKnHniaTC2gL82Oj4aDXdpsA=",
+    "h1:xRlYlz/JGccDgzyASk1E2KsruCXRoMIhvcwqij82NJM=",
+    "zh:15d0aa8f68ea3d56586c8764138401ceaa9dbcb0af5a18a1401c2e835ace5260",
+    "zh:6fef487f2db90483b48703aa64ca179a54daa44722cc91084aeacf8ed6950ecf",
+    "zh:7f923d8f15f441aa0c716c7da7a5cf5edf5e084ce00d1d43494db5ce3ae0fb65",
+    "zh:900180c429994fdbd04d519c2133d4c167c03e1d42f55d7244c6d58d3df20397",
+    "zh:b90145af0511f11c07f169a1bf4c8aa38e1b3b8924fa20aaf1cf4d9c309609d5",
+    "zh:ced14d1a05548d0120b993730f85ec38d9aa7a8b2388f6ad5e9670cbae863f44",
   ]
 }
 
