@@ -11,6 +11,19 @@ data:
       labels:
         blueprints.goauthentik.io/instantiate: "true"
     entries:
+      - model: authentik_providers_oauth2.scopemapping
+        state: present
+        identifiers:
+          scope_name: email
+          managed: goauthentik.io/providers/oauth2/scope-email-custom
+        attrs:
+          name: "Email (verified)"
+          scope_name: email
+          expression: |
+            return {
+                "email": request.user.email,
+                "email_verified": True,
+            }
       - model: authentik_providers_oauth2.oauth2provider
         state: present
         identifiers:
@@ -27,7 +40,7 @@ data:
               matching_mode: strict
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
-            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email-custom]]
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
           signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
       - model: authentik_core.application
