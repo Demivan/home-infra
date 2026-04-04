@@ -101,9 +101,10 @@ module "talos" {
     },
   ]
 
-  # Cilium and CCM managed by ArgoCD, not bootstrap
-  deploy_cilium     = false
-  deploy_hcloud_ccm = false
+  # Cilium, CCM, and CoreDNS managed by ArgoCD, not bootstrap
+  deploy_cilium         = false
+  deploy_hcloud_ccm     = false
+  disable_talos_coredns = true
 
   # Sysctls for Cilium
   sysctls_extra_args = {
