@@ -23,3 +23,10 @@ spec:
         createdb: false
         passwordSecret:
           name: authentik-db-credentials
+      - name: vaultwarden
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        passwordSecret:
+          name: vaultwarden-db-credentials
