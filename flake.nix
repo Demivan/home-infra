@@ -29,6 +29,7 @@
               gh
               # backblaze-b2  # TODO: broken in nixpkgs, add back for operations plan
               ripgrep
+              python3
               jq
               yq-go
             ];
