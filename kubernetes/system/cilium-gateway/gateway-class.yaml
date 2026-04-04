@@ -16,3 +16,4 @@ spec:
     group: cilium.io
     kind: CiliumGatewayClassConfig
     name: cilium-internal
+    namespace: cilium-gateway
