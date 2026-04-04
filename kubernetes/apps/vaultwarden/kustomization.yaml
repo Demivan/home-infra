@@ -28,7 +28,7 @@ helmCharts:
         onlySSO: false
         signupsMatchEmail: true
         authority: "https://authentik.taild84c78.ts.net/application/o/vaultwarden/"
-        scopes: "email profile"
+        scopes: "openid email profile"
         pkce: true
         clientId:
           value: ""
