@@ -20,8 +20,8 @@ data:
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
           invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           client_type: confidential
-          client_id: "${VAULTWARDEN_OIDC_CLIENT_ID}"
-          client_secret: "${VAULTWARDEN_OIDC_CLIENT_SECRET}"
+          client_id: !Env VAULTWARDEN_OIDC_CLIENT_ID
+          client_secret: !Env VAULTWARDEN_OIDC_CLIENT_SECRET
           redirect_uris:
             - url: "https://vaultwarden.taild84c78.ts.net/identity/connect/oidc-signin"
               matching_mode: strict
