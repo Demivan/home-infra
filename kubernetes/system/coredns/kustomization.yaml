@@ -42,6 +42,8 @@ helmCharts:
               configBlock: |-
                 lameduck 5s
             - name: ready
+            - name: rewrite
+              parameters: "name regex ([a-zA-Z0-9-]+)\\.home\\.demivan\\.me cilium-gateway-internal.cilium-gateway.svc.cluster.local answer auto"
             - name: log
               parameters: .
               configBlock: |-
