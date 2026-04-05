@@ -19,7 +19,7 @@ helmCharts:
           defaultClass: true
           reclaimPolicy: Retain
           volumeBindingMode: WaitForFirstConsumer
-          allowVolumeExpansion: true
+          allowVolumeExpansion: false
 
       controller:
         enabled: true
@@ -27,6 +27,8 @@ helmCharts:
         externalAttacher:
           enabled: false
         externalSnapshotter:
+          enabled: false
+        externalResizer:
           enabled: false
         priorityClassName: infra-critical
 
