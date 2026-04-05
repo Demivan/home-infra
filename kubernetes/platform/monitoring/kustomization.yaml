@@ -107,8 +107,8 @@ helmCharts:
             enabled: true
             name: Authentik
             allow_sign_up: true
-            client_id: ${client_id}
-            client_secret: ${client_secret}
+            client_id: $__env{client_id}
+            client_secret: $__env{client_secret}
             scopes: openid profile email offline_access
             auth_url: https://auth.home.demivan.me/application/o/authorize/
             token_url: https://auth.home.demivan.me/application/o/token/
