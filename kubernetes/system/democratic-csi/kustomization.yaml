@@ -1,0 +1,58 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: democratic-csi
+    repo: https://democratic-csi.github.io/charts/
+    version: "0.15.1"
+    releaseName: democratic-csi-local
+    namespace: democratic-csi
+    valuesInline:
+      csiDriver:
+        name: org.democratic-csi.local-hostpath
+        attachRequired: false
+        storageCapacity: true
+        fsGroupPolicy: File
+
+      storageClasses:
+        - name: local-path
+          defaultClass: true
+          reclaimPolicy: Retain
+          volumeBindingMode: WaitForFirstConsumer
+          allowVolumeExpansion: true
+
+      controller:
+        enabled: true
+        strategy: node
+        externalAttacher:
+          enabled: false
+        externalSnapshotter:
+          enabled: false
+        priorityClassName: infra-critical
+
+      node:
+        priorityClassName: infra-critical
+        driver:
+          extraVolumeMounts:
+            - name: local-hostpath
+              mountPath: /var/lib/democratic-csi/local-hostpath
+              mountPropagation: Bidirectional
+        extraVolumes:
+          - name: local-hostpath
+            hostPath:
+              path: /var/lib/democratic-csi/local-hostpath
+              type: DirectoryOrCreate
+
+      driver:
+        config:
+          driver: local-hostpath
+          instance_id: local-hostpath
+          local-hostpath:
+            shareBasePath: /var/lib/democratic-csi/local-hostpath
+            controllerBasePath: /var/lib/democratic-csi/local-hostpath
+            dirPermissionsMode: "0770"
+            dirPermissionsUser: 0
+            dirPermissionsGroup: 0
+
+resources:
+  - namespace.yaml
