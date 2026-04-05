@@ -1,0 +1,119 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: victoria-metrics-k8s-stack
+    repo: https://victoriametrics.github.io/helm-charts/
+    version: "0.72.5"
+    releaseName: victoria-metrics-k8s-stack
+    namespace: monitoring
+    includeCRDs: true
+    valuesInline:
+      # --- VMSingle (metrics storage) ---
+      vmsingle:
+        enabled: true
+        spec:
+          retentionPeriod: "90d"
+          storage:
+            storageClassName: hcloud-volumes
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+          priorityClassName: platform
+
+      # --- VMAgent (scraping) ---
+      vmagent:
+        enabled: true
+        spec:
+          scrapeInterval: 30s
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          priorityClassName: platform
+
+      # --- VMAlert (alerting rules) ---
+      vmalert:
+        enabled: true
+        spec:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          priorityClassName: platform
+
+      # --- Alertmanager (disabled — no notification target yet) ---
+      alertmanager:
+        enabled: false
+
+      # --- Default alerting/recording rules ---
+      defaultRules:
+        create: true
+        rules:
+          etcd: false
+          kubeControllerManager: false
+          kubeScheduler: false
+          kubeProxy: false
+
+      # --- Scrape targets ---
+      kubelet:
+        enabled: true
+      kubeApiServer:
+        enabled: true
+      kubeControllerManager:
+        enabled: false
+      kubeScheduler:
+        enabled: false
+      kubeProxy:
+        enabled: false
+      kubeEtcd:
+        enabled: false
+      coreDns:
+        enabled: true
+
+      # --- Grafana (bundled) ---
+      grafana:
+        enabled: true
+        priorityClassName: platform
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+        envFromSecrets:
+          - name: grafana-oidc
+            optional: false
+        grafana.ini:
+          server:
+            root_url: https://grafana.home.demivan.me
+          auth:
+            disable_login_form: true
+          auth.generic_oauth:
+            enabled: true
+            name: Authentik
+            allow_sign_up: true
+            client_id: ${client_id}
+            client_secret: ${client_secret}
+            scopes: openid profile email offline_access
+            auth_url: https://auth.home.demivan.me/application/o/authorize/
+            token_url: https://auth.home.demivan.me/application/o/token/
+            api_url: https://auth.home.demivan.me/application/o/userinfo/
+            role_attribute_path: "contains(groups[*], 'admin') && 'Admin' || 'Viewer'"
+            use_refresh_token: true
+
+resources:
+  - externalsecret.yaml
+  - httproute.yaml
