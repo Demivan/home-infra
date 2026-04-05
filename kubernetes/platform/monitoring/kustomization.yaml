@@ -117,5 +117,6 @@ helmCharts:
             use_refresh_token: true
 
 resources:
+  - namespace.yaml
   - externalsecret.yaml
   - httproute.yaml
