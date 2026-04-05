@@ -11,7 +11,7 @@ helmCharts:
       csiDriver:
         name: org.democratic-csi.local-hostpath
         attachRequired: false
-        storageCapacity: true
+        storageCapacity: false
         fsGroupPolicy: File
 
       storageClasses:
