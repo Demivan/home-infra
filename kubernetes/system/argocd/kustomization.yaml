@@ -13,6 +13,19 @@ helmCharts:
       configs:
         cm:
           kustomize.buildOptions: --enable-helm
+          admin.enabled: "false"
+          oidc.config: |
+            name: Authentik
+            issuer: https://auth.home.demivan.me/application/o/argocd/
+            clientID: $argocd-oidc-secret:oidc.default.clientID
+            clientSecret: $argocd-oidc-secret:oidc.default.clientSecret
+            scopes:
+              - openid
+              - profile
+              - email
+        rbac:
+          policy.csv: |
+            g, admin, role:admin
         params:
           server.insecure: true
           controller.diff.server.side: "true"
@@ -50,3 +63,4 @@ helmCharts:
 
 resources:
   - httproute.yaml
+  - externalsecret.yaml

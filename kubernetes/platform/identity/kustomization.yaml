@@ -41,6 +41,16 @@ helmCharts:
               secretKeyRef:
                 name: authentik-secrets
                 key: grafana-oidc-client-secret
+          - name: ARGOCD_OIDC_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: argocd-oidc-client-id
+          - name: ARGOCD_OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: argocd-oidc-client-secret
       authentik:
         postgresql:
           host: postgres-rw.postgres.svc
@@ -70,9 +80,11 @@ helmCharts:
         configMaps:
           - blueprint-vaultwarden
           - blueprint-grafana
+          - blueprint-argocd
 
 resources:
   - externalsecret.yaml
   - httproute.yaml
   - blueprint-vaultwarden.yaml
   - blueprint-grafana.yaml
+  - blueprint-argocd.yaml
