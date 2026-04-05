@@ -56,5 +56,83 @@ helmCharts:
             dirPermissionsUser: 0
             dirPermissionsGroup: 0
 
+  # Storage Box SMB via democratic-csi smb-client
+  # shareHost from: terraform output storagebox_server
+  - name: democratic-csi
+    repo: https://democratic-csi.github.io/charts/
+    version: "0.15.1"
+    releaseName: democratic-csi-smb
+    namespace: democratic-csi
+    valuesInline:
+      csiDriver:
+        name: org.democratic-csi.smb-client
+        attachRequired: false
+        storageCapacity: false
+        fsGroupPolicy: File
+
+      storageClasses:
+        - name: smb
+          defaultClass: false
+          reclaimPolicy: Retain
+          volumeBindingMode: Immediate
+          allowVolumeExpansion: false
+          parameters:
+            fsType: cifs
+            csi.storage.k8s.io/node-stage-secret-name: democratic-csi-smb-credentials
+            csi.storage.k8s.io/node-stage-secret-namespace: democratic-csi
+          mountOptions:
+            - seal
+
+      controller:
+        enabled: true
+        strategy: node
+        externalAttacher:
+          enabled: false
+        externalSnapshotter:
+          enabled: false
+        externalResizer:
+          enabled: false
+        priorityClassName: infra-critical
+
+      node:
+        priorityClassName: infra-critical
+        driver:
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    SMB_USER=$(cat /smb-credentials/username)
+                    SMB_PASS=$(cat /smb-credentials/password)
+                    mount -t cifs //u569043.your-storagebox.de/backup /mnt/smb -o "username=${SMB_USER},password=${SMB_PASS},seal"
+          extraVolumeMounts:
+            - name: smb-storage
+              mountPath: /mnt/smb
+              mountPropagation: Bidirectional
+            - name: smb-credentials
+              mountPath: /smb-credentials
+              readOnly: true
+        extraVolumes:
+          - name: smb-storage
+            emptyDir: {}
+          - name: smb-credentials
+            secret:
+              secretName: democratic-csi-smb-credentials
+
+      driver:
+        config:
+          driver: smb-client
+          instance_id: smb-client
+          smb:
+            shareHost: "u569043.your-storagebox.de"
+            shareBasePath: "backup"
+            controllerBasePath: "/mnt/smb"
+            dirPermissionsMode: "0770"
+            dirPermissionsUser: 0
+            dirPermissionsGroup: 0
+
 resources:
   - namespace.yaml
+  - smb-external-secret.yaml
