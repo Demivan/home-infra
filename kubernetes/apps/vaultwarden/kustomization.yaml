@@ -17,7 +17,7 @@ helmCharts:
         dbName: vaultwarden
         username: vaultwarden
         existingSecret: vaultwarden-db-credentials
-        existingSecretKey: password
+        existingSecretKey: database-url
 
       adminToken:
         existingSecret: vaultwarden-secrets
