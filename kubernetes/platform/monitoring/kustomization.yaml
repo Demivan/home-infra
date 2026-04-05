@@ -46,6 +46,8 @@ helmCharts:
       vmalert:
         enabled: true
         spec:
+          extraArgs:
+            notifier.blackhole: "true"
           resources:
             requests:
               cpu: 50m
