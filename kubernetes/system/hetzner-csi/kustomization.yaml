@@ -10,7 +10,7 @@ helmCharts:
     valuesInline:
       storageClasses:
         - name: hcloud-volumes
-          defaultStorageClass: true
+          defaultStorageClass: false
           reclaimPolicy: Retain
       controller:
         priorityClassName: infra-critical
