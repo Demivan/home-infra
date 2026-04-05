@@ -13,7 +13,7 @@ helmCharts:
       minecraftServer:
         eula: "TRUE"
         type: GTNH
-        memory: 12G
+        memory: 8G
         jvmOpts: >-
           -Dfml.readTimeout=180
           -Dfml.queryResult=confirm
@@ -30,7 +30,7 @@ helmCharts:
         tailscale.com/hostname: minecraft
       extraEnv:
         GTNH_PACK_VERSION: "2.8.4"
-        INIT_MEMORY: "12G"
+        INIT_MEMORY: "8G"
         EXEC_DIRECTLY: "true"
         STOP_SERVER_ANNOUNCE_DELAY: "30"
       startupProbe:
