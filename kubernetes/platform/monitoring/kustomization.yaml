@@ -9,6 +9,10 @@ helmCharts:
     namespace: monitoring
     includeCRDs: true
     valuesInline:
+      # --- Prometheus CRDs (ServiceMonitor, PodMonitor, PrometheusRule) ---
+      # VM Operator auto-converts these to VM-native CRDs
+      prometheus-operator-crds:
+        enabled: true
       # --- VMSingle (metrics storage) ---
       vmsingle:
         enabled: true
