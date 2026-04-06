@@ -41,11 +41,13 @@ helmCharts:
       signupsAllowed: false
       invitationsAllowed: true
 
-      data:
-        persistence:
-          enabled: true
+      storage:
+        data:
+          name: vaultwarden-data
           size: 1Gi
           class: local-path
+          path: /data
+          accessMode: ReadWriteOnce
 
       ingress:
         enabled: false
