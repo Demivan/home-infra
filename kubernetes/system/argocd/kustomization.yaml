@@ -41,17 +41,17 @@ helmCharts:
         resources:
           requests:
             cpu: 100m
-            memory: 256Mi
-          limits:
             memory: 512Mi
+          limits:
+            memory: 1Gi
         priorityClassName: platform
       repoServer:
         resources:
           requests:
             cpu: 50m
-            memory: 128Mi
-          limits:
             memory: 256Mi
+          limits:
+            memory: 512Mi
         priorityClassName: platform
       redis:
         resources:
