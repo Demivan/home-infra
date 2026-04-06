@@ -41,6 +41,12 @@ helmCharts:
       signupsAllowed: false
       invitationsAllowed: true
 
+      data:
+        persistence:
+          enabled: true
+          size: 1Gi
+          class: local-path
+
       ingress:
         enabled: false
 
