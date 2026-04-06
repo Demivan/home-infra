@@ -66,4 +66,6 @@ helmCharts:
           memory: 4Gi
 
 resources:
+  - namespace.yaml
   - serverutilities-config.yaml
+  - schedule.yaml

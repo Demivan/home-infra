@@ -1,0 +1,46 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: backup-alerts
+spec:
+  groups:
+    - name: cnpg-backup
+      rules:
+        - alert: CNPGBackupFailed
+          expr: |
+            time() - barman_cloud_cloudnative_pg_io_last_available_backup_timestamp > 172800
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "CNPG PostgreSQL backup is stale"
+            description: "No successful base backup in the last 48 hours."
+        - alert: CNPGWALArchivingBehind
+          expr: |
+            time() - barman_cloud_cloudnative_pg_io_first_recoverability_point > 3600
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CNPG WAL archiving is behind"
+            description: "First recoverability point is more than 1 hour old."
+    - name: k8up-backup
+      rules:
+        - alert: K8upBackupJobFailed
+          expr: |
+            kube_job_status_failed{job_name=~".*backup.*"} > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "K8up backup job failed in {{ $labels.namespace }}"
+            description: "Backup job {{ $labels.job_name }} failed."
+        - alert: K8upNoRecentBackup
+          expr: |
+            time() - max by (namespace) (kube_job_status_completion_time{job_name=~".*backup.*"}) > 172800
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "No recent K8up backup in {{ $labels.namespace }}"
+            description: "No successful backup in the last 48 hours."

@@ -54,5 +54,7 @@ helmCharts:
           memory: 256Mi
 
 resources:
+  - namespace.yaml
   - externalsecret.yaml
   - httproute.yaml
+  - schedule.yaml

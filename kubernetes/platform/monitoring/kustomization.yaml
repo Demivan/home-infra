@@ -120,3 +120,5 @@ resources:
   - namespace.yaml
   - externalsecret.yaml
   - httproute.yaml
+  - schedule.yaml
+  - vmrule-backup.yaml

@@ -8,7 +8,7 @@ Personal Kubernetes homelab on Hetzner Cloud, managed with OpenTofu + Talos Linu
 - **Networking:** Cilium (CNI + kube-proxy replacement), Tailscale (VPN mesh), Gateway API CRDs (standard channel v1.2.1)
 - **Internal DNS:** Split-horizon via `*.home.demivan.me` — CoreDNS rewrites to Cilium Gateway (NodePort), Tailscale Split DNS + Connector for tailnet client access
 - **Storage:** democratic-csi local-hostpath (local disk, dynamic PVs) + smb-client (Storage Box BX11, 1TB HDD) for bulk data via SMB/CIFS
-- **Backup:** Velero (PVC snapshots) + Rustic (Storage Box data) → Backblaze B2
+- **Backup:** K8up (PVC file-level restic backup) + CNPG Barman Cloud (PostgreSQL WAL + PITR) → Backblaze B2
 - **Secrets:** Infisical → External Secrets Operator (Kubernetes Auth) → K8s Secrets. Also Infisical Terraform provider for OpenTofu secrets.
 - **State:** HCP Terraform (free tier) — remote state with locking
 - **Identity:** Authentik (SSO via OIDC/LDAP for all services)
@@ -50,6 +50,7 @@ infra/
 │   │   ├── external-dns/    # external-dns + ExternalSecret
 │   │   ├── external-secrets/ # ESO + Infisical ClusterSecretStore
 │   │   ├── hetzner-ccm/     # Hetzner CCM + ExternalSecret
+│   │   ├── k8up/            # K8up backup operator + ClusterExternalSecret
 │   │   ├── democratic-csi/  # democratic-csi local-hostpath + smb-client (Storage Box)
 │   │   ├── cnpg-system/     # CloudNativePG operator
 │   │   ├── tailscale/       # Tailscale operator + ExternalSecret + Connector (subnet router)
@@ -70,6 +71,7 @@ infra/
 - **`cilium-internal` GatewayClass** — NodePort-backed (no Hetzner LB), used for all internal services via `*.home.demivan.me`
 - **Split-horizon DNS** — CoreDNS rewrites `*.home.demivan.me` → `cilium-gateway-internal.cilium-gateway.svc.cluster.local`. Tailscale Connector advertises service CIDR `10.0.8.0/21`. Tailscale Split DNS (admin console) sends `home.demivan.me` queries to CoreDNS at `10.0.8.10`.
 - **democratic-csi local-hostpath** for dynamic volume provisioning on local disk; **smb-client** for Storage Box bulk data via SMB/CIFS
+- **K8up** for PVC backup to Backblaze B2 (restic, per-namespace Schedule CRDs). **CNPG Barman Cloud** for PostgreSQL (WAL archiving + PITR). Namespaces with `backup: enabled` label receive backup credentials via ClusterExternalSecret.
 - **ExternalSecrets co-located with consumers** — each component owns its ExternalSecret, not centralized
 - **Priority classes:** infra-critical (Cilium, CCM/CSI) > platform (ArgoCD, Authentik, cert-manager) > app-default (Immich, oCIS, etc.) > best-effort (Minecraft)
 - **Talos image extensions:** qemu-guest-agent, nfs-utils, iscsi-tools — baked via Image Factory schematic
