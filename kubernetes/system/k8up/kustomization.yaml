@@ -13,8 +13,7 @@ helmCharts:
         skipWithoutAnnotation: false
       metrics:
         serviceMonitor:
-          enabled: true
-          scrapeInterval: 60s
+          enabled: false
       resources:
         requests:
           cpu: 20m
