@@ -21,6 +21,7 @@ helmCharts:
         viewDistance: 12
         maxTickTime: 300000
         spawnProtection: 0
+        whitelist: "Demivan"
         rcon:
           enabled: true
           withGeneratedPassword: true
