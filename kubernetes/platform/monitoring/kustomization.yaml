@@ -63,6 +63,12 @@ helmCharts:
               memory: 128Mi
           priorityClassName: platform
 
+      # --- VM Operator (webhook certs via cert-manager) ---
+      victoria-metrics-operator:
+        admissionWebhooks:
+          certManager:
+            enabled: true
+
       # --- Alertmanager (Telegram notifications) ---
       alertmanager:
         enabled: true
