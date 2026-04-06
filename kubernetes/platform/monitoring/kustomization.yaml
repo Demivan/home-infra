@@ -55,8 +55,6 @@ helmCharts:
       vmalert:
         enabled: true
         spec:
-          extraArgs:
-            notifier.blackhole: "true"
           resources:
             requests:
               cpu: 50m
@@ -65,9 +63,18 @@ helmCharts:
               memory: 128Mi
           priorityClassName: platform
 
-      # --- Alertmanager (disabled — no notification target yet) ---
+      # --- Alertmanager (Telegram notifications) ---
       alertmanager:
-        enabled: false
+        enabled: true
+        spec:
+          configSecret: alertmanager-telegram
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          priorityClassName: platform
 
       # --- Default alerting/recording rules ---
       defaultRules:
@@ -128,6 +135,7 @@ helmCharts:
 resources:
   - namespace.yaml
   - externalsecret.yaml
+  - externalsecret-alertmanager.yaml
   - httproute.yaml
   - schedule.yaml
   - vmrule-backup.yaml
