@@ -1,0 +1,13 @@
+apiVersion: netbird.io/v1alpha1
+kind: NetworkResource
+metadata:
+  name: coredns
+  namespace: kube-system
+spec:
+  networkRouterRef:
+    name: homelab
+    namespace: netbird
+  serviceRef:
+    name: kube-dns
+  groups:
+    - name: All

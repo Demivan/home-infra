@@ -68,3 +68,6 @@ helmCharts:
             - name: loop
             - name: reload
             - name: loadbalance
+
+resources:
+  - network-resource.yaml
