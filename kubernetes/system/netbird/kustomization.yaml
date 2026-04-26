@@ -18,3 +18,4 @@ helmCharts:
 
 resources:
   - externalsecret.yaml
+  - network-router.yaml
