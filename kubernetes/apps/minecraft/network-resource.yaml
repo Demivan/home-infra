@@ -8,6 +8,6 @@ spec:
     name: homelab
     namespace: netbird
   serviceRef:
-    name: minecraft-mc-router
+    name: mc-router
   groups:
     - name: All
