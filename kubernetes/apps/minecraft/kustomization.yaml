@@ -9,6 +9,7 @@ helmCharts:
     namespace: minecraft
     valuesInline:
       workloadAsStatefulSet: true
+      strategyType: OnDelete
       image:
         tag: java25
       minecraftServer:
@@ -106,5 +107,6 @@ helmCharts:
 
 resources:
   - namespace.yaml
+  - datadir-pvc.yaml
   - serverutilities-config.yaml
   - schedule.yaml
