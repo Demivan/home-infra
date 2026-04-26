@@ -7,6 +7,7 @@ helmCharts:
     version: "0.3.1"
     releaseName: netbird
     namespace: netbird
+    includeCRDs: true
     valuesInline:
       webhook:
         enableCertManager: true
