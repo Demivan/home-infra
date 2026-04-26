@@ -17,5 +17,6 @@ helmCharts:
           key: NB_API_KEY
 
 resources:
+  - namespace.yaml
   - externalsecret.yaml
   - network-router.yaml
