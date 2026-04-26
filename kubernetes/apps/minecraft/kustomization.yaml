@@ -29,7 +29,7 @@ helmCharts:
           withGeneratedPassword: true
         serviceType: ClusterIP
       serviceAnnotations:
-        mc-router.itzg.me/externalServerName: minecraft.taild84c78.ts.net
+        mc-router.itzg.me/externalServerName: minecraft.home.demivan.me
         mc-router.itzg.me/autoScaleUp: "true"
         mc-router.itzg.me/autoScaleDown: "true"
         mc-router.itzg.me/autoScaleAsleepMOTD: "Server is sleeping. Join to wake it up!"
@@ -90,12 +90,8 @@ helmCharts:
             after: "10m"
       services:
         minecraft:
-          type: LoadBalancer
+          type: ClusterIP
           port: 25565
-          annotations:
-            tailscale.com/hostname: minecraft
-        extraServiceSpec:
-          loadBalancerClass: tailscale
       resources:
         requests:
           cpu: 50m
@@ -110,3 +106,4 @@ resources:
   - datadir-pvc.yaml
   - serverutilities-config.yaml
   - schedule.yaml
+  - network-resource.yaml
