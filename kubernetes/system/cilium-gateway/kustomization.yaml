@@ -5,4 +5,3 @@ resources:
   - gateway-class.yaml
   - certificate.yaml
   - gateway.yaml
-  - network-resource.yaml

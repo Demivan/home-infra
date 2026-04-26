@@ -2,12 +2,12 @@ apiVersion: netbird.io/v1alpha1
 kind: NetworkResource
 metadata:
   name: cilium-gateway-internal
-  namespace: cilium-gateway
+  namespace: kube-system
 spec:
   networkRouterRef:
     name: homelab
     namespace: netbird
   serviceRef:
-    name: cilium-gateway-internal
+    name: cilium-gateway-internal-clusterip
   groups:
     - name: All
