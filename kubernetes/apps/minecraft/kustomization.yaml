@@ -29,7 +29,7 @@ helmCharts:
           withGeneratedPassword: true
         serviceType: ClusterIP
       serviceAnnotations:
-        mc-router.itzg.me/externalServerName: minecraft
+        mc-router.itzg.me/externalServerName: minecraft.taild84c78.ts.net
         mc-router.itzg.me/autoScaleUp: "true"
         mc-router.itzg.me/autoScaleDown: "true"
         mc-router.itzg.me/autoScaleAsleepMOTD: "Server is sleeping. Join to wake it up!"
