@@ -8,6 +8,7 @@ helmCharts:
     releaseName: minecraft
     namespace: minecraft
     valuesInline:
+      workloadAsStatefulSet: true
       image:
         tag: java25
       minecraftServer:
@@ -25,10 +26,14 @@ helmCharts:
         rcon:
           enabled: true
           withGeneratedPassword: true
-        serviceType: LoadBalancer
-        loadBalancerClass: tailscale
+        serviceType: ClusterIP
       serviceAnnotations:
-        tailscale.com/hostname: minecraft
+        mc-router.itzg.me/externalServerName: minecraft
+        mc-router.itzg.me/autoScaleUp: "true"
+        mc-router.itzg.me/autoScaleDown: "true"
+        mc-router.itzg.me/autoScaleAsleepMOTD: "Server is sleeping. Join to wake it up!"
+        mc-router.itzg.me/autoScaleLoadingMOTD: "Server is starting... please wait (~3 min)"
+        mc-router.itzg.me/autoScaleWaitTimeout: "300s"
       extraEnv:
         GTNH_PACK_VERSION: "2.8.4"
         INIT_MEMORY: "8G"
@@ -61,10 +66,43 @@ helmCharts:
         dataDir:
           enabled: true
           Size: 20Gi
+          existingClaim: minecraft-datadir
       resources:
         requests:
           cpu: "2"
           memory: 4Gi
+
+  - name: mc-router
+    repo: https://itzg.github.io/minecraft-server-charts/
+    version: "1.4.1"
+    releaseName: mc-router
+    namespace: minecraft
+    valuesInline:
+      image:
+        tag: "1.42.0"
+      minecraftRouter:
+        autoScale:
+          up:
+            enabled: true
+          down:
+            enabled: true
+            after: "10m"
+      services:
+        minecraft:
+          type: LoadBalancer
+          port: 25565
+          annotations:
+            tailscale.com/hostname: minecraft
+        extraServiceSpec:
+          loadBalancerClass: tailscale
+      resources:
+        requests:
+          cpu: 50m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+      extraPodSpec:
+        priorityClassName: platform
 
 resources:
   - namespace.yaml
