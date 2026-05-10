@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: csi-driver-smb
+    repo: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts
+    version: "1.20.1"
+    releaseName: csi-driver-smb
+    namespace: csi-driver-smb
+    valuesInline:
+      priorityClassName: infra-critical
+      controller:
+        runOnControlPlane: true
+
+resources:
+  - namespace.yaml
+  - externalsecret.yaml
+  - storageclass.yaml

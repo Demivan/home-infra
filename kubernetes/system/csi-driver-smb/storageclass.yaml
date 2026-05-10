@@ -1,0 +1,26 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: smb
+provisioner: smb.csi.k8s.io
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+allowVolumeExpansion: false
+parameters:
+  source: "//u569043.your-storagebox.de/backup"
+  subDir: "${pvc.metadata.namespace}/${pvc.metadata.name}"
+  onDelete: retain
+  csi.storage.k8s.io/provisioner-secret-name: smb-credentials
+  csi.storage.k8s.io/provisioner-secret-namespace: csi-driver-smb
+  csi.storage.k8s.io/node-stage-secret-name: smb-credentials
+  csi.storage.k8s.io/node-stage-secret-namespace: csi-driver-smb
+mountOptions:
+  - seal
+  - file_mode=0644
+  - dir_mode=0755
+  - uid=0
+  - gid=0
+  - noperm
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
