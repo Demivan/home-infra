@@ -1,0 +1,72 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: immich
+    repo: https://immich-app.github.io/immich-charts
+    version: "0.11.1"
+    releaseName: immich
+    namespace: immich
+    valuesInline:
+      controllers:
+        main:
+          containers:
+            main:
+              env:
+                DB_HOSTNAME: postgres-rw.postgres.svc
+                DB_DATABASE_NAME: immich
+                DB_USERNAME: immich
+                DB_PASSWORD:
+                  valueFrom:
+                    secretKeyRef:
+                      name: immich-db-credentials
+                      key: password
+                DB_VECTOR_EXTENSION: pgvector
+
+      immich:
+        persistence:
+          library:
+            existingClaim: immich-library
+
+      valkey:
+        enabled: true
+
+      server:
+        enabled: true
+        controllers:
+          main:
+            containers:
+              main:
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 512Mi
+                  limits:
+                    memory: 1Gi
+
+      machine-learning:
+        enabled: true
+        controllers:
+          main:
+            containers:
+              main:
+                resources:
+                  requests:
+                    cpu: 200m
+                    memory: 1Gi
+                  limits:
+                    cpu: 1000m
+                    memory: 2Gi
+        persistence:
+          cache:
+            enabled: true
+            size: 10Gi
+            type: persistentVolumeClaim
+            accessMode: ReadWriteOnce
+            storageClass: local-path
+
+resources:
+  - namespace.yaml
+  - externalsecret.yaml
+  - pvc-library.yaml
+  - httproute.yaml

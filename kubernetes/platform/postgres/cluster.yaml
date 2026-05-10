@@ -9,6 +9,11 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: b2-backup-store
+  postgresql:
+    extensions:
+      - name: pgvector
+        image:
+          reference: ghcr.io/cloudnative-pg/pgvector:0.8.2-202604291250-18-trixie
   storage:
     size: 10Gi
     storageClass: local-path
@@ -35,3 +40,10 @@ spec:
         createdb: false
         passwordSecret:
           name: vaultwarden-db-credentials
+      - name: immich
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        passwordSecret:
+          name: immich-db-credentials

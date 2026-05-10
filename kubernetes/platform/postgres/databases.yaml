@@ -17,3 +17,20 @@ spec:
   owner: vaultwarden
   cluster:
     name: postgres
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: immich-db
+spec:
+  name: immich
+  owner: immich
+  cluster:
+    name: postgres
+  extensions:
+    - name: cube
+      ensure: present
+    - name: earthdistance
+      ensure: present
+    - name: vector
+      ensure: present
