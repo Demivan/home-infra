@@ -15,12 +15,12 @@ parameters:
   csi.storage.k8s.io/node-stage-secret-name: smb-credentials
   csi.storage.k8s.io/node-stage-secret-namespace: csi-driver-smb
 mountOptions:
-  - seal
+  - vers=3.0
   - file_mode=0644
   - dir_mode=0755
   - uid=0
   - gid=0
   - noperm
-  - mfsymlinks
+  - noserverino
   - cache=strict
   - actimeo=30
