@@ -43,7 +43,7 @@ helmCharts:
                 lameduck 5s
             - name: ready
             - name: rewrite
-              parameters: "name regex ^minecraft\\.home\\.demivan\\.me$ mc-router.minecraft.svc.cluster.local answer auto"
+              parameters: "stop name regex ^minecraft\\.home\\.demivan\\.me\\.?$ mc-router.minecraft.svc.cluster.local answer auto"
             - name: rewrite
               parameters: "name regex ([a-zA-Z0-9-]+)\\.home\\.demivan\\.me cilium-gateway-internal.cilium-gateway.svc.cluster.local answer auto"
             - name: log
