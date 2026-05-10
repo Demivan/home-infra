@@ -73,7 +73,6 @@ module "talos" {
     { id = 1, type = var.server_type }
   ]
 
-  # Firewall: open Talos/K8s API for bootstrap (tighten to NetBird in Plan 2)
   # firewall_use_current_ip doesn't work with remote HCP Terraform runners
   firewall_kube_api_source  = ["0.0.0.0/0", "::/0"]
   firewall_talos_api_source = ["0.0.0.0/0", "::/0"]
@@ -90,13 +89,6 @@ module "talos" {
       direction   = "in"
       protocol    = "tcp"
       port        = "443"
-      source_ips  = ["0.0.0.0/0", "::/0"]
-    },
-    {
-      description = "NetBird WireGuard"
-      direction   = "in"
-      protocol    = "udp"
-      port        = "51820"
       source_ips  = ["0.0.0.0/0", "::/0"]
     },
   ]

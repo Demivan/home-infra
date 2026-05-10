@@ -106,4 +106,3 @@ resources:
   - datadir-pvc.yaml
   - serverutilities-config.yaml
   - schedule.yaml
-  - network-resource.yaml
