@@ -2,5 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^kubernetes/.+\\.ya?ml$"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\s+[A-Za-z0-9_-]+:\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?"
+      ]
+    }
   ]
 }
