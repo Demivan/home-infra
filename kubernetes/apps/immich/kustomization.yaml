@@ -13,6 +13,7 @@ helmCharts:
           containers:
             main:
               image:
+                # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
                 tag: v2.7.5
               env:
                 DB_HOSTNAME: postgres-rw.postgres.svc
