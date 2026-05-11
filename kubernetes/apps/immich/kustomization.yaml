@@ -27,6 +27,8 @@ helmCharts:
         persistence:
           library:
             existingClaim: immich-library
+        existingConfiguration: immich-config
+        configurationKind: Secret
 
       valkey:
         enabled: true
