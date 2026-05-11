@@ -12,6 +12,8 @@ helmCharts:
         main:
           containers:
             main:
+              image:
+                tag: v2.7.5
               env:
                 DB_HOSTNAME: postgres-rw.postgres.svc
                 DB_DATABASE_NAME: immich
