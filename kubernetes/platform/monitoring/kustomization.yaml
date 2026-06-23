@@ -23,6 +23,10 @@ helmCharts:
         enabled: true
         spec:
           retentionPeriod: "90d"
+          # Exclude the metrics PVC from K8up backups — VM data is regenerable (re-scraped).
+          storageMetadata:
+            annotations:
+              k8up.io/backup: "false"
           storage:
             storageClassName: local-path
             accessModes:
