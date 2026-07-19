@@ -10,3 +10,4 @@ resources:
   - slskd.yaml
   - lidarr.yaml
   - soularr.yaml
+  - schedule.yaml
