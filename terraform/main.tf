@@ -92,12 +92,12 @@ module "talos" {
       source_ips  = ["0.0.0.0/0", "::/0"]
     },
     {
-      # slskd Soulseek P2P listen port (hostPort on the node). Must allow all
+      # slskd Soulseek P2P listen port (NodePort on the node). Must allow all
       # source IPs — Soulseek peers connect from arbitrary addresses.
       description = "slskd Soulseek P2P"
       direction   = "in"
       protocol    = "tcp"
-      port        = "50300"
+      port        = "30300"
       source_ips  = ["0.0.0.0/0", "::/0"]
     },
     {
