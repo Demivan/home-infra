@@ -3,10 +3,11 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
-  - pvc-data.yaml
   - pv-library.yaml
   - pvc-library.yaml
-  - deployment.yaml
-  - service.yaml
-  - httproute.yaml
+  - pvc-downloads.yaml
+  - externalsecret.yaml
+  - slskd.yaml
+  - lidarr.yaml
+  - soularr.yaml
   - schedule.yaml

@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: navidrome-music
+  name: navidrome-library
   namespace: navidrome
 spec:
-  storageClassName: smb
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: navidrome-library
   resources:
     requests:
       storage: 100Gi
