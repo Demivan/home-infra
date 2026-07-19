@@ -7,3 +7,4 @@ resources:
   - pvc-library.yaml
   - pvc-downloads.yaml
   - externalsecret.yaml
+  - slskd.yaml
