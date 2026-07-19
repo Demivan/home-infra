@@ -8,3 +8,4 @@ resources:
   - pvc-downloads.yaml
   - externalsecret.yaml
   - slskd.yaml
+  - lidarr.yaml
