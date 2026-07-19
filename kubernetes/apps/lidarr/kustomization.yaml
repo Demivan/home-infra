@@ -6,3 +6,4 @@ resources:
   - pv-library.yaml
   - pvc-library.yaml
   - pvc-downloads.yaml
+  - externalsecret.yaml
