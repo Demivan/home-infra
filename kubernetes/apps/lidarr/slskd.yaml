@@ -33,6 +33,15 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+      initContainers:
+        # slskd validates that SLSKD_INCOMPLETE_DIR exists and won't create it;
+        # the downloads volume is empty on first mount, so create the subdir.
+        - name: init-downloads
+          image: busybox:1.37
+          command: ["sh", "-c", "mkdir -p /downloads/incomplete"]
+          volumeMounts:
+            - name: downloads
+              mountPath: /downloads
       containers:
         - name: slskd
           # renovate: datasource=docker depName=slskd/slskd
