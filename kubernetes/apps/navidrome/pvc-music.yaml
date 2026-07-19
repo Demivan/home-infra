@@ -4,9 +4,10 @@ metadata:
   name: navidrome-music
   namespace: navidrome
 spec:
-  storageClassName: smb
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: navidrome-library
   resources:
     requests:
       storage: 100Gi

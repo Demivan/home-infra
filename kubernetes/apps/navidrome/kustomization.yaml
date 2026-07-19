@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - pvc-data.yaml
+  - pv-library.yaml
   - pvc-music.yaml
   - deployment.yaml
   - service.yaml
