@@ -91,6 +91,15 @@ module "talos" {
       port        = "443"
       source_ips  = ["0.0.0.0/0", "::/0"]
     },
+    {
+      # slskd Soulseek P2P listen port (hostPort on the node). Must allow all
+      # source IPs — Soulseek peers connect from arbitrary addresses.
+      description = "slskd Soulseek P2P"
+      direction   = "in"
+      protocol    = "tcp"
+      port        = "50300"
+      source_ips  = ["0.0.0.0/0", "::/0"]
+    },
   ]
 
   # Cilium, CCM, and CoreDNS managed by ArgoCD, not bootstrap
