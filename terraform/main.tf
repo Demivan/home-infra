@@ -100,6 +100,16 @@ module "talos" {
       port        = "50300"
       source_ips  = ["0.0.0.0/0", "::/0"]
     },
+    {
+      # Tailscale WireGuard direct-connection port. Not strictly required
+      # (Tailscale falls back to DERP relays) but enables direct P2P.
+      # Kept in Terraform so applies don't prune it from the firewall.
+      description = "Tailscale WireGuard"
+      direction   = "in"
+      protocol    = "udp"
+      port        = "41641"
+      source_ips  = ["0.0.0.0/0", "::/0"]
+    },
   ]
 
   # Cilium, CCM, and CoreDNS managed by ArgoCD, not bootstrap
