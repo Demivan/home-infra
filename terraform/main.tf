@@ -124,8 +124,9 @@ resource "hcloud_storage_box" "data" {
   password         = local.storagebox_password
 
   access_settings = {
-    ssh_enabled   = true
-    samba_enabled = true
+    ssh_enabled          = true
+    samba_enabled        = true
+    reachable_externally = true
   }
 
   labels = {
