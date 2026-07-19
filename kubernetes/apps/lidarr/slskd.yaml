@@ -49,6 +49,12 @@ spec:
           ports:
             - name: http
               containerPort: 5030
+            # Soulseek P2P listen port — exposed on the node (hostPort) so NAT'd
+            # peers can connect back; required for browse/download to work.
+            - name: soulseek
+              containerPort: 50300
+              hostPort: 50300
+              protocol: TCP
           env:
             - name: SLSKD_SLSK_USERNAME
               valueFrom:

@@ -91,6 +91,25 @@ module "talos" {
       port        = "443"
       source_ips  = ["0.0.0.0/0", "::/0"]
     },
+    {
+      # slskd Soulseek P2P listen port (hostPort on the node). Must allow all
+      # source IPs — Soulseek peers connect from arbitrary addresses.
+      description = "slskd Soulseek P2P"
+      direction   = "in"
+      protocol    = "tcp"
+      port        = "50300"
+      source_ips  = ["0.0.0.0/0", "::/0"]
+    },
+    {
+      # Tailscale WireGuard direct-connection port. Not strictly required
+      # (Tailscale falls back to DERP relays) but enables direct P2P.
+      # Kept in Terraform so applies don't prune it from the firewall.
+      description = "Tailscale WireGuard"
+      direction   = "in"
+      protocol    = "udp"
+      port        = "41641"
+      source_ips  = ["0.0.0.0/0", "::/0"]
+    },
   ]
 
   # Cilium, CCM, and CoreDNS managed by ArgoCD, not bootstrap
@@ -115,8 +134,9 @@ resource "hcloud_storage_box" "data" {
   password         = local.storagebox_password
 
   access_settings = {
-    ssh_enabled   = true
-    samba_enabled = true
+    ssh_enabled          = true
+    samba_enabled        = true
+    reachable_externally = true
   }
 
   labels = {
