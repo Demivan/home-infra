@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: navidrome-music
+  name: navidrome-library
   namespace: navidrome
 spec:
   accessModes:

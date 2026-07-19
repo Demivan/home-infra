@@ -5,7 +5,7 @@ resources:
   - namespace.yaml
   - pvc-data.yaml
   - pv-library.yaml
-  - pvc-music.yaml
+  - pvc-library.yaml
   - deployment.yaml
   - service.yaml
   - httproute.yaml
