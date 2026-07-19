@@ -9,3 +9,4 @@ resources:
   - externalsecret.yaml
   - slskd.yaml
   - lidarr.yaml
+  - soularr.yaml

@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: soularr-config-data
+  namespace: lidarr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: soularr
+  namespace: lidarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: soularr
+  template:
+    metadata:
+      labels:
+        app: soularr
+    spec:
+      priorityClassName: app-default
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: soularr
+          # renovate: datasource=docker depName=mrusse08/soularr
+          image: mrusse08/soularr:v1.2.2
+          env:
+            - name: TZ
+              value: Europe/Kyiv
+            - name: SCRIPT_INTERVAL
+              value: "300"
+            - name: WEBUI_ENABLED
+              value: "false"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /data/config.ini
+              subPath: config.ini
+              readOnly: true
+            - name: downloads
+              mountPath: /downloads
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: soularr-config-data
+        - name: config
+          secret:
+            secretName: soularr-config
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: downloads
