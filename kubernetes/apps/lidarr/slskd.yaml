@@ -79,6 +79,7 @@ spec:
               mountPath: /downloads
             - name: library
               mountPath: /music
+              readOnly: true
           readinessProbe:
             tcpSocket:
               port: http
