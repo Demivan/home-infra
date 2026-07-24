@@ -147,5 +147,4 @@ resources:
   - externalsecret.yaml
   - externalsecret-alertmanager.yaml
   - httproute.yaml
-  - schedule.yaml
   - vmrule-backup.yaml
