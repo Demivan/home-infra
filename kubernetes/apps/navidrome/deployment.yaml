@@ -30,7 +30,11 @@ spec:
               value: /data
             - name: ND_PORT
               value: "4533"
-            - name: ND_SCANSCHEDULE
+            # Navidrome >=0.6x reads this under the Scanner section; the old
+            # ND_SCANSCHEDULE is silently ignored ("Periodic scan is DISABLED").
+            # Required here because the library is a CIFS mount, where the
+            # inotify-based watcher never fires.
+            - name: ND_SCANNER_SCHEDULE
               value: "@every 1h"
             - name: ND_LISTENBRAINZ_ENABLED
               value: "true"
