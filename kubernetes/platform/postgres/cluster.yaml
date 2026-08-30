@@ -14,6 +14,19 @@ spec:
       - name: pgvector
         image:
           reference: ghcr.io/cloudnative-pg/pgvector:0.8.2-202604291250-18-trixie
+      # GeoDjango backend for AdventureLog. ld_library_path/env are required by
+      # the CNPG PostGIS extension image so it can find its own shared
+      # libraries and the GDAL/PROJ data files.
+      - name: postgis
+        image:
+          reference: ghcr.io/cloudnative-pg/postgis-extension:3.6.4-202608241541-18-trixie
+        ld_library_path:
+          - system
+        env:
+          - name: GDAL_DATA
+            value: ${image_root}/share/gdal
+          - name: PROJ_DATA
+            value: ${image_root}/share/proj
   storage:
     size: 10Gi
     storageClass: local-path
@@ -47,3 +60,10 @@ spec:
         createdb: false
         passwordSecret:
           name: immich-db-credentials
+      - name: adventurelog
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        passwordSecret:
+          name: adventurelog-db-credentials

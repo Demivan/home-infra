@@ -27,6 +27,7 @@ Personal Kubernetes homelab on Hetzner Cloud, managed with OpenTofu + Talos Linu
 | Immich | Google Photos replacement | OIDC | |
 | oCIS | Google Drive replacement | OIDC | |
 | Radicale | Calendar/Contacts (CalDAV/CardDAV) | LDAP | |
+| AdventureLog | Travel/trip log (PostGIS) | OIDC | `trips.home.demivan.me` |
 | Minecraft GTNH | Game server (Tailscale-only) | N/A | |
 
 ## Repo Structure
@@ -55,7 +56,7 @@ infra/
 │   │   ├── cnpg-system/     # CloudNativePG operator
 │   │   ├── tailscale/       # Tailscale operator + ExternalSecret + Connector (subnet router)
 │   │   └── common/          # Priority classes
-│   └── apps/                # immich, ocis, vaultwarden, radicale, minecraft
+│   └── apps/                # immich, ocis, vaultwarden, radicale, minecraft, adventurelog
 ├── docs/                    # Architecture docs, plans
 └── flake.nix                # devShell (opentofu, talosctl, kubectl, helm, kustomize, etc.)
 ```

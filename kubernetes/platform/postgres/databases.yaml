@@ -34,3 +34,18 @@ spec:
       ensure: present
     - name: vector
       ensure: present
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: adventurelog-db
+spec:
+  name: adventurelog
+  owner: adventurelog
+  cluster:
+    name: postgres
+  extensions:
+    # AdventureLog's Django migrations assume PostGIS already exists — nothing
+    # in the app issues CREATE EXTENSION, so CNPG must install it here.
+    - name: postgis
+      ensure: present
