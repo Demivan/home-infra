@@ -61,6 +61,16 @@ helmCharts:
               secretKeyRef:
                 name: authentik-secrets
                 key: immich-oidc-client-secret
+          - name: ADVENTURELOG_OIDC_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: adventurelog-oidc-client-id
+          - name: ADVENTURELOG_OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: adventurelog-oidc-client-secret
       authentik:
         postgresql:
           host: postgres-rw.postgres.svc
@@ -92,6 +102,7 @@ helmCharts:
           - blueprint-grafana
           - blueprint-argocd
           - blueprint-immich
+          - blueprint-adventurelog
 
 resources:
   - externalsecret.yaml
@@ -100,3 +111,4 @@ resources:
   - blueprint-grafana.yaml
   - blueprint-argocd.yaml
   - blueprint-immich.yaml
+  - blueprint-adventurelog.yaml

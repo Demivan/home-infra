@@ -1,0 +1,142 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adventurelog
+  namespace: adventurelog
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: adventurelog
+  template:
+    metadata:
+      labels:
+        app: adventurelog
+    spec:
+      priorityClassName: app-default
+      initContainers:
+        # The image's own nginx does `proxy_set_header X-Forwarded-Proto
+        # $scheme`, clobbering the `https` the Cilium Gateway sends. Django then
+        # sees a plaintext request and allauth hands Authentik an `http://`
+        # redirect_uri — which nothing serves, since the gateway only listens on
+        # 443. Rewrite that one directive to honour an inbound value instead.
+        # `grep` guards the patch: if upstream changes the line, this container
+        # fails loudly rather than silently leaving OIDC broken.
+        - name: patch-nginx-forwarded-proto
+          # renovate: datasource=docker depName=ghcr.io/seanmorley15/adventurelog
+          image: ghcr.io/seanmorley15/adventurelog:v0.13.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              grep -qF 'proxy_set_header X-Forwarded-Proto $scheme;' /etc/nginx/nginx.conf
+              sed -e 's|^http {|http {\n    map $http_x_forwarded_proto $al_proto { default $http_x_forwarded_proto; "" $scheme; }|' \
+                  -e 's|proxy_set_header X-Forwarded-Proto \$scheme;|proxy_set_header X-Forwarded-Proto $al_proto;|' \
+                  /etc/nginx/nginx.conf > /nginx-conf/nginx.conf
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /nginx-conf
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+      containers:
+        - name: adventurelog
+          # All-in-one image: nginx on :80 fronting the SvelteKit frontend
+          # (:3000) and the Django/gunicorn backend (:8000).
+          # renovate: datasource=docker depName=ghcr.io/seanmorley15/adventurelog
+          image: ghcr.io/seanmorley15/adventurelog:v0.13.0
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            # Everything else (ORIGIN, FRONTEND_URL, PUBLIC_URL,
+            # CSRF_TRUSTED_ORIGINS) is derived from SITE_URL at startup.
+            - name: SITE_URL
+              value: https://trips.home.demivan.me
+            - name: PGHOST
+              value: postgres-rw.postgres.svc
+            - name: POSTGRES_DB
+              value: adventurelog
+            - name: POSTGRES_USER
+              value: adventurelog
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: adventurelog-secrets
+                  key: db-password
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: adventurelog-secrets
+                  key: secret-key
+            - name: DEBUG
+              value: "False"
+            - name: GUNICORN_WORKERS
+              value: "2"
+            - name: ENABLE_RATE_LIMITS
+              value: "True"
+            # Local signup form off; accounts come from Authentik, which gates
+            # who may reach the application.
+            - name: DISABLE_REGISTRATION
+              value: "True"
+            - name: SOCIALACCOUNT_ALLOW_SIGNUP
+              value: "True"
+            # No SMTP in the cluster — verification links would never arrive.
+            - name: ACCOUNT_EMAIL_VERIFICATION
+              value: "none"
+            # Bootstrap superuser, created on first boot only. Needed to reach
+            # the Django admin panel, where the Authentik social application is
+            # registered (AdventureLog stores OIDC config in the database).
+            - name: DJANGO_ADMIN_USERNAME
+              value: admin
+            - name: DJANGO_ADMIN_EMAIL
+              value: ide@scor.dk
+            - name: DJANGO_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: adventurelog-secrets
+                  key: admin-password
+          volumeMounts:
+            - name: media
+              mountPath: /code/media
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          # First boot runs migrations and `download-countries`, which pulls the
+          # world region dataset — several minutes and ~2GB RAM before nginx
+          # starts listening. Hence the long startup budget and 2Gi limit.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            failureThreshold: 90
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: adventurelog-media
+        - name: nginx-conf
+          emptyDir: {}
