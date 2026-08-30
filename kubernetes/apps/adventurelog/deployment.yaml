@@ -87,6 +87,10 @@ spec:
               value: "True"
             - name: SOCIALACCOUNT_ALLOW_SIGNUP
               value: "True"
+            # "True" blocks every password login, the bootstrap superuser at
+            # /admin included, leaving Authentik as the only way in.
+            - name: FORCE_SOCIALACCOUNT_LOGIN
+              value: "False"
             # No SMTP in the cluster — verification links would never arrive.
             - name: ACCOUNT_EMAIL_VERIFICATION
               value: "none"
@@ -95,8 +99,11 @@ spec:
             # registered (AdventureLog stores OIDC config in the database).
             - name: DJANGO_ADMIN_USERNAME
               value: admin
+            # Must match the Authentik account's email: allauth links a social
+            # login to an existing user by verified address, so this is what
+            # makes the first OIDC login land on the superuser.
             - name: DJANGO_ADMIN_EMAIL
-              value: ide@scor.dk
+              value: ivan.demchuk@gmail.com
             - name: DJANGO_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
