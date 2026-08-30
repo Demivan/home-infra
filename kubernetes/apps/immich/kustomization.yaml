@@ -3,8 +3,8 @@ kind: Kustomization
 
 helmCharts:
   - name: immich
-    repo: https://immich-app.github.io/immich-charts
-    version: "0.11.1"
+    repo: oci://ghcr.io/immich-app/immich-charts
+    version: "0.13.1"
     releaseName: immich
     namespace: immich
     valuesInline:
@@ -14,7 +14,7 @@ helmCharts:
             main:
               image:
                 # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
-                tag: v2.7.5
+                tag: v3.1.0
               env:
                 DB_HOSTNAME: postgres-rw.postgres.svc
                 DB_DATABASE_NAME: immich
