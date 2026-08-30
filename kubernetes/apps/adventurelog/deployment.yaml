@@ -103,8 +103,12 @@ spec:
             # Bootstrap superuser, created on first boot only. Needed to reach
             # the Django admin panel, where the Authentik social application is
             # registered (AdventureLog stores OIDC config in the database).
+            # Must match the Authentik account's username (allauth renames the
+            # user to its preferred_username): the entrypoint keys "already
+            # bootstrapped" off the username alone, so any other value makes
+            # every boot re-insert and die on the unique-email constraint.
             - name: DJANGO_ADMIN_USERNAME
-              value: admin
+              value: demivan
             # Must match the Authentik account's email: allauth links a social
             # login to an existing user by verified address, so this is what
             # makes the first OIDC login land on the superuser.
