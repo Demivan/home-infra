@@ -87,10 +87,10 @@ spec:
               value: "True"
             - name: SOCIALACCOUNT_ALLOW_SIGNUP
               value: "True"
-            # "True" blocks every password login, the bootstrap superuser at
-            # /admin included, leaving Authentik as the only way in.
+            # Blocks every password login, the bootstrap superuser at /admin
+            # included, leaving Authentik as the only way in.
             - name: FORCE_SOCIALACCOUNT_LOGIN
-              value: "False"
+              value: "True"
             # No SMTP in the cluster — verification links would never arrive.
             - name: ACCOUNT_EMAIL_VERIFICATION
               value: "none"
