@@ -148,6 +148,26 @@ helmCharts:
             role_attribute_path: "contains(groups[*], 'admin') && 'Admin' || 'Viewer'"
             use_refresh_token: true
 
+# The chart ships its rules/dashboards sync job as a Helm hook. Argo CD only
+# translates helm.sh/hook for Helm sources, so under Kustomize the Job is
+# silently dropped and no default VMRules are ever created. Re-express it as a
+# native Argo hook so it runs on every sync.
+patches:
+  - target:
+      kind: Job
+      name: victoria-metrics-k8s-stack-sync-job
+    patch: |-
+      - op: remove
+        path: /metadata/annotations/helm.sh~1hook
+      - op: remove
+        path: /metadata/annotations/helm.sh~1hook-delete-policy
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1hook
+        value: PostSync
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1hook-delete-policy
+        value: BeforeHookCreation
+
 resources:
   - namespace.yaml
   - externalsecret.yaml
