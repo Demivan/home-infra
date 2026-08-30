@@ -16,6 +16,12 @@ spec:
         app: adventurelog
     spec:
       priorityClassName: app-default
+      # nginx's workers run as uid 65534, but democratic-csi creates volume
+      # roots as 0770 root:root — without a shared group they cannot traverse
+      # into /code/media, and every media file 403s.
+      securityContext:
+        fsGroup: 65534
+        fsGroupChangePolicy: OnRootMismatch
       initContainers:
         # The image's own nginx does `proxy_set_header X-Forwarded-Proto
         # $scheme`, clobbering the `https` the Cilium Gateway sends. Django then
