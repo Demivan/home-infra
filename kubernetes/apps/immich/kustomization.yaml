@@ -42,12 +42,14 @@ helmCharts:
           main:
             containers:
               main:
+                # The v3 server idles near 1Gi (plugin runtime, workflows,
+                # OpenTelemetry), so 1Gi limits OOM-kill it on startup.
                 resources:
                   requests:
                     cpu: 100m
-                    memory: 512Mi
-                  limits:
                     memory: 1Gi
+                  limits:
+                    memory: 2Gi
 
       machine-learning:
         enabled: true
