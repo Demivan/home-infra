@@ -12,6 +12,11 @@ helmCharts:
         enabled: true
         clusterCIDR: "10.0.16.0/20"
       priorityClassName: infra-critical
+      # Single replica binding a hostPort on a single-node cluster: the default
+      # rolling update rounds maxSurge up to 1 and maxUnavailable down to 0, so
+      # the new pod waits forever for a port the old pod still holds.
+      strategy:
+        type: Recreate
 
 resources:
   - externalsecret.yaml
