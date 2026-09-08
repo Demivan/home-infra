@@ -46,6 +46,9 @@ talos/_out/
 # Kubeconfig
 kubeconfig
 
+# Infisical CLI project link (machine-local)
+.infisical.json
+
 # Kustomize Helm chart cache
 kubernetes/**/charts/
 

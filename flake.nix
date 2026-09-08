@@ -21,6 +21,7 @@
               kubectl
               kubernetes-helm
               kustomize
+              infisical
               cilium-cli
               argocd
               velero
@@ -33,6 +34,11 @@
               jq
               yq-go
             ];
+
+            env = {
+              # Infisical Cloud EU; without this the CLI defaults to the US instance.
+              INFISICAL_DOMAIN = "https://eu.infisical.com";
+            };
 
             shellHook = ''
               echo "Homelab infra shell ready"
