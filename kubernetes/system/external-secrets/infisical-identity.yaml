@@ -6,4 +6,4 @@ metadata:
   namespace: external-secrets
 type: Opaque
 stringData:
-  identityId: "af169b45-19fb-44c2-b0f8-29abfc2fbf71"
+  identityId: "d7980814-cbff-4973-9d79-b39d3c7d6384"
