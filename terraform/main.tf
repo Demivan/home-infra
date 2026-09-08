@@ -28,11 +28,13 @@ terraform {
 }
 
 # Auth via INFISICAL_UNIVERSAL_AUTH_CLIENT_ID / INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET env vars
-provider "infisical" {}
+provider "infisical" {
+  host = "https://eu.infisical.com"
+}
 
 data "infisical_secrets" "main" {
   env_slug     = "prod"
-  workspace_id = "d17420b0-619f-4c69-a409-59bf89441439"
+  workspace_id = "41eab2df-3208-4fff-a0aa-036970ba8b6f"
   folder_path  = "/"
 }
 
