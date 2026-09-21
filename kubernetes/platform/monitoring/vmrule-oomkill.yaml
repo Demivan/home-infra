@@ -1,0 +1,40 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: oomkill-alerts
+spec:
+  groups:
+    - name: oomkill
+      rules:
+        - alert: ContainerOOMKilled
+          # last_terminated_reason stays set for the rest of the container's
+          # life, so the restart bound is what lets this alert resolve.
+          expr: |
+            increase(kube_pod_container_status_restarts_total[1h]) > 0
+              and on (namespace, pod, container)
+            kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} == 1
+            or
+            increase(kube_pod_init_container_status_restarts_total[1h]) > 0
+              and on (namespace, pod, container)
+            kube_pod_init_container_status_last_terminated_reason{reason="OOMKilled"} == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.container }} in {{ $labels.namespace }} was OOMKilled"
+            description: "Container {{ $labels.container }} in pod {{ $labels.pod }} hit its memory limit and was killed."
+    - name: restarts
+      rules:
+        # KubePodCrashLooping only fires once a container reaches CrashLoopBackOff,
+        # which needs failures closer together than kubelet's 10m backoff reset.
+        - alert: ContainerRestartingRepeatedly
+          expr: |
+            increase(kube_pod_container_status_restarts_total[6h]) >= 5
+            or
+            increase(kube_pod_init_container_status_restarts_total[6h]) >= 5
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.container }} in {{ $labels.namespace }} keeps restarting"
+            description: "Container {{ $labels.container }} in pod {{ $labels.pod }} restarted {{ $value | printf \"%.0f\" }} times in the last 6 hours."

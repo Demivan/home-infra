@@ -174,3 +174,4 @@ resources:
   - externalsecret-alertmanager.yaml
   - httproute.yaml
   - vmrule-backup.yaml
+  - vmrule-oomkill.yaml
