@@ -158,6 +158,21 @@ module "talos" {
   }
 }
 
+# Reverse DNS for the node's public IPv4, which is also the mail host
+# (mail.demivan.me): receiving servers check that the connecting IP's PTR
+# resolves back to it. The reverse zone is Hetzner's, so this cannot live in
+# Cloudflare. Set on the Primary IP, which the module keeps across server
+# re-creation (auto_delete = false).
+data "hcloud_primary_ip" "control_plane_ipv4" {
+  ip_address = module.talos.public_ipv4_list[0]
+}
+
+resource "hcloud_rdns" "mail" {
+  primary_ip_id = data.hcloud_primary_ip.control_plane_ipv4.id
+  ip_address    = data.hcloud_primary_ip.control_plane_ipv4.ip_address
+  dns_ptr       = "mail.demivan.me"
+}
+
 # Storage Box for bulk data (Immich photos, oCIS files, DB dumps)
 resource "hcloud_storage_box" "data" {
   name             = "homelab-data"
