@@ -1,0 +1,66 @@
+# Starts Stalwart in recovery mode: mail services stay down, only the HTTP
+# management API on :8080 runs, and the recovery administrator from Infisical
+# is accepted. Used for the first bootstrap and for maintenance; remove the
+# component from ../kustomization.yaml to return to normal operation.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  - externalsecret.yaml
+
+patches:
+  - target:
+      kind: Deployment
+      name: stalwart
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: STALWART_RECOVERY_MODE
+          value: "1"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: STALWART_RECOVERY_ADMIN
+          valueFrom:
+            secretKeyRef:
+              name: stalwart-recovery-admin
+              key: credential
+  # No API key exists before the first admin account, so the apply Job signs
+  # in as the recovery administrator instead.
+  - target:
+      kind: Job
+      name: stalwart-apply
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/1
+        value:
+          name: STALWART_USER
+          valueFrom:
+            secretKeyRef:
+              name: stalwart-recovery-admin
+              key: username
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: STALWART_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: stalwart-recovery-admin
+              key: password
+  # Both depend on the API key, which would leave the app Degraded and block
+  # the PostSync apply until it exists.
+  - patch: |-
+      $patch: delete
+      apiVersion: external-secrets.io/v1
+      kind: ExternalSecret
+      metadata:
+        name: stalwart-api
+        namespace: stalwart
+  - patch: |-
+      $patch: delete
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+        name: stalwart-reload-tls
+        namespace: stalwart

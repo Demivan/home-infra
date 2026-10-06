@@ -103,6 +103,36 @@ module "talos" {
       source_ips  = ["0.0.0.0/0", "::/0"]
     },
     {
+      # Stalwart mail ports (hostPorts on the node): inbound SMTP, implicit-TLS
+      # and STARTTLS submission, IMAPS.
+      description = "SMTP"
+      direction   = "in"
+      protocol    = "tcp"
+      port        = "25"
+      source_ips  = ["0.0.0.0/0", "::/0"]
+    },
+    {
+      description = "SMTP submissions"
+      direction   = "in"
+      protocol    = "tcp"
+      port        = "465"
+      source_ips  = ["0.0.0.0/0", "::/0"]
+    },
+    {
+      description = "SMTP submission"
+      direction   = "in"
+      protocol    = "tcp"
+      port        = "587"
+      source_ips  = ["0.0.0.0/0", "::/0"]
+    },
+    {
+      description = "IMAPS"
+      direction   = "in"
+      protocol    = "tcp"
+      port        = "993"
+      source_ips  = ["0.0.0.0/0", "::/0"]
+    },
+    {
       # Tailscale WireGuard direct-connection port. Not strictly required
       # (Tailscale falls back to DERP relays) but enables direct P2P.
       # Kept in Terraform so applies don't prune it from the firewall.

@@ -7,6 +7,7 @@ helmCharts:
     version: "1.22.0"
     releaseName: external-dns
     namespace: external-dns
+    includeCRDs: true
     valuesInline:
       provider:
         name: cloudflare
@@ -20,6 +21,9 @@ helmCharts:
         - demivan.me
       sources:
         - gateway-httproute
+        # DNSEndpoint objects, for records with no Gateway or Service behind
+        # them (Stalwart's hostPort-exposed mail host).
+        - crd
       policy: sync
       txtOwnerId: homelab
       priorityClassName: platform

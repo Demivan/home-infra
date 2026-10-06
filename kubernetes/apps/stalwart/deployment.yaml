@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stalwart
+  namespace: stalwart
+spec:
+  replicas: 1
+  # hostPorts and the RWO RocksDB volume both forbid a second pod.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: stalwart
+  template:
+    metadata:
+      labels:
+        app: stalwart
+    spec:
+      priorityClassName: app-default
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsUser: 2000
+        runAsGroup: 2000
+        runAsNonRoot: true
+        fsGroup: 2000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: stalwart
+          image: stalwartlabs/stalwart:v0.16.25
+          # Mail ports are hostPorts on the node's public IP (Hetzner firewall
+          # rules in terraform/main.tf). Cilium's hostPort path keeps the client
+          # source IP, which SPF, DNSBL and rate limiting depend on.
+          ports:
+            - name: smtp
+              containerPort: 25
+              hostPort: 25
+            - name: submissions
+              containerPort: 465
+              hostPort: 465
+            - name: submission
+              containerPort: 587
+              hostPort: 587
+            - name: imaps
+              containerPort: 993
+              hostPort: 993
+            - name: http
+              containerPort: 8080
+          env:
+            # Discovery documents (JMAP session, autoconfig) advertise the
+            # internal gateway hostname; Stalwart itself serves plain HTTP.
+            - name: STALWART_PUBLIC_URL
+              value: https://mail.home.demivan.me
+          volumeMounts:
+            - name: config
+              mountPath: /etc/stalwart
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/stalwart
+            - name: tls
+              mountPath: /run/stalwart/tls
+              readOnly: true
+            - name: dkim
+              mountPath: /run/stalwart/dkim
+              readOnly: true
+            - name: relay
+              mountPath: /run/stalwart/relay
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            # The binary carries a cap_net_bind_service file capability; exec
+            # fails outright when NET_BIND_SERVICE is missing from the bounding set.
+            capabilities:
+              drop: ["ALL"]
+              add: ["NET_BIND_SERVICE"]
+          # The HTTP listener trusts X-Forwarded-For (it sits behind the
+          # gateway) and logs a warning for every request without one.
+          startupProbe:
+            httpGet:
+              path: /healthz/live
+              port: http
+              httpHeaders:
+                - name: X-Forwarded-For
+                  value: 127.0.0.1
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: http
+              httpHeaders:
+                - name: X-Forwarded-For
+                  value: 127.0.0.1
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: http
+              httpHeaders:
+                - name: X-Forwarded-For
+                  value: 127.0.0.1
+            periodSeconds: 30
+            timeoutSeconds: 5
+          # Idle is ~140Mi; RocksDB block cache and write buffers are capped at
+          # 64Mi + 32Mi in config.json. Tune the limit from observed usage.
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: config
+          configMap:
+            name: stalwart-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: stalwart-data
+        - name: tls
+          secret:
+            secretName: stalwart-tls
+        - name: dkim
+          secret:
+            secretName: stalwart-dkim
+        - name: relay
+          secret:
+            secretName: stalwart-relay
+        - name: tmp
+          emptyDir: {}

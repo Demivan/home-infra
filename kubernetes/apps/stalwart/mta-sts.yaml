@@ -1,0 +1,82 @@
+# Serves only the MTA-STS policy on the node's public 443, keeping Stalwart's
+# own HTTP listener (JMAP, admin) off the internet.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mta-sts
+  namespace: stalwart
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mta-sts
+  template:
+    metadata:
+      labels:
+        app: mta-sts
+    spec:
+      priorityClassName: app-default
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:1.31.6-alpine
+          # nginx loads the certificate once; the liveness probe restarts the
+          # container when cert-manager has written a renewed one.
+          command:
+            - /bin/sh
+            - -c
+            - cp /tls/tls.crt /tmp/loaded.crt && exec nginx -g 'daemon off;'
+          ports:
+            - name: https
+              containerPort: 8443
+              hostPort: 443
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: policy
+              mountPath: /policy
+              readOnly: true
+            - name: tls
+              mountPath: /tls
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          readinessProbe:
+            tcpSocket:
+              port: https
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["cmp", "-s", "/tmp/loaded.crt", "/tls/tls.crt"]
+            periodSeconds: 300
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+      volumes:
+        - name: conf
+          configMap:
+            name: mta-sts-nginx
+        - name: policy
+          configMap:
+            name: mta-sts-policy
+        - name: tls
+          secret:
+            secretName: mta-sts-tls
+        - name: tmp
+          emptyDir: {}

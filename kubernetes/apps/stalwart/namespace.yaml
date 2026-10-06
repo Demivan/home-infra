@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: stalwart
+  labels:
+    backup: enabled
+    # The mail and MTA-STS pods bind hostPorts on the node's public IP, which
+    # the baseline Pod Security level forbids.
+    pod-security.kubernetes.io/enforce: privileged
