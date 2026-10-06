@@ -34,6 +34,10 @@ spec:
                     secretKeyRef:
                       name: stalwart-api
                       key: token
+              # stalwart-cli refuses to start unless it can write under $HOME.
+              volumeMounts:
+                - name: home
+                  mountPath: /home/nonroot
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -45,3 +49,6 @@ spec:
                   memory: 32Mi
                 limits:
                   memory: 128Mi
+          volumes:
+            - name: home
+              emptyDir: {}

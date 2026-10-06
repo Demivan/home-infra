@@ -9,7 +9,7 @@ metadata:
   annotations:
     # Stalwart publishes mta-sts.<domain> as a CNAME to mail.demivan.me; an
     # external-dns A record at the same name would conflict with it.
-    external-dns.alpha.kubernetes.io/controller: stalwart
+    external-dns.kubernetes.io/controller: stalwart
 spec:
   parentRefs:
     - name: public
