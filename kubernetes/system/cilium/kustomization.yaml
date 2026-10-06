@@ -10,6 +10,8 @@ helmCharts:
     valuesInline:
       operator:
         replicas: 1
+        # The operator reads cilium-config only at startup (e.g. enable-node-ipam).
+        rollOutPods: true
       ipam:
         mode: kubernetes
       routingMode: native
@@ -19,6 +21,8 @@ helmCharts:
         masquerade: false
       loadBalancer:
         acceleration: native
+      nodeIPAM:
+        enabled: true
       securityContext:
         capabilities:
           ciliumAgent:
