@@ -47,7 +47,7 @@ infra/
 │   │   ├── applicationset.yaml  # Git directory generator for system/*
 │   │   ├── argocd/          # ArgoCD self-management
 │   │   ├── cilium/          # Cilium + Gateway API CRDs + cilium-internal GatewayClass
-│   │   ├── cilium-gateway/  # Gateway + wildcard cert for *.home.demivan.me
+│   │   ├── cilium-gateway/  # internal Gateway + wildcard cert for *.home.demivan.me; public Gateway + its cert
 │   │   ├── cert-manager/    # cert-manager + ClusterIssuers + ExternalSecret
 │   │   ├── external-dns/    # external-dns + ExternalSecret
 │   │   ├── external-secrets/ # ESO + Infisical ClusterSecretStore
@@ -71,6 +71,7 @@ infra/
 - **ApplicationSet** (git directory generator) — auto-discovers `kubernetes/system/*` directories. Folder name = namespace (`CreateNamespace=true`). No per-app Application manifests needed.
 - **Gateway API** (HTTPRoute) — no Ingress API, no Traefik. CRDs managed in Cilium kustomization.
 - **`cilium-internal` GatewayClass** — NodePort-backed (no Hetzner LB), used for all internal services via `*.home.demivan.me`
+- **`cilium-public` GatewayClass** — LoadBalancer Service with `loadBalancerClass: io.cilium/node` (Cilium Node IPAM, no Hetzner LB), so the `public` Gateway listens on the node's public IP. Routes attach only from namespaces labelled `home.demivan.me/public-gateway: allowed`; add each hostname to the `public-gateway` Certificate. `externalTrafficPolicy` must stay `Cluster` for Gateway Services.
 - **Split-horizon DNS** — CoreDNS rewrites `*.home.demivan.me` → `cilium-gateway-internal.cilium-gateway.svc.cluster.local`. Tailscale Connector advertises service CIDR `10.0.8.0/21`. Tailscale Split DNS (admin console) sends `home.demivan.me` queries to CoreDNS at `10.0.8.10`.
 - **democratic-csi local-hostpath** for dynamic volume provisioning on local disk; **smb-client** for Storage Box bulk data via SMB/CIFS
 - **K8up** for PVC backup to Backblaze B2 (restic, per-namespace Schedule CRDs). **CNPG Barman Cloud** for PostgreSQL (WAL archiving + PITR). Namespaces with `backup: enabled` label receive backup credentials via ClusterExternalSecret.

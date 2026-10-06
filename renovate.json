@@ -3,6 +3,11 @@
   "extends": [
     "config:recommended"
   ],
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/^kubernetes/.+\\.ya?ml$/"
+    ]
+  },
   "customManagers": [
     {
       "customType": "regex",
