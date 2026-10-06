@@ -15,11 +15,6 @@ resources:
   - cronjob-reload-tls.yaml
   - schedule.yaml
 
-# Bootstrap phase: drop this once the postmaster admin account exists. Its API
-# key (stalwart-api-token) can only be created afterwards, in normal mode.
-components:
-  - recovery
-
 configMapGenerator:
   # Only the datastore lives on disk; everything else is in plan.ndjson.
   - name: stalwart-config
