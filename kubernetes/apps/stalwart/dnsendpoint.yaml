@@ -1,7 +1,6 @@
-# The node's public IPv4, which the stalwart-mail LoadBalancer receives from
-# Cilium node IPAM. external-dns reads only Gateway routes and DNSEndpoints, so
-# the mail host is published from here. The mta-sts hosts come from their
-# HTTPRoute on the public gateway.
+# The node's public IPv4, which the stalwart-mail LoadBalancer and the public
+# Gateway receive from Cilium node IPAM. Stalwart publishes every other mail
+# record itself and points them at this name.
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:

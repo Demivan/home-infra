@@ -57,8 +57,8 @@ spec:
             - name: tls
               mountPath: /run/stalwart/tls
               readOnly: true
-            - name: dkim
-              mountPath: /run/stalwart/dkim
+            - name: cloudflare
+              mountPath: /run/stalwart/cloudflare
               readOnly: true
             - name: relay
               mountPath: /run/stalwart/relay
@@ -119,9 +119,9 @@ spec:
         - name: tls
           secret:
             secretName: stalwart-tls
-        - name: dkim
+        - name: cloudflare
           secret:
-            secretName: stalwart-dkim
+            secretName: stalwart-cloudflare
         - name: relay
           secret:
             secretName: stalwart-relay
