@@ -15,8 +15,8 @@ resources:
   - cronjob-reload-tls.yaml
   - schedule.yaml
 
-# Bootstrap phase: drop this once the postmaster API key is in Infisical
-# (RUNBOOK.md, "First deployment").
+# Bootstrap phase: drop this once the postmaster admin account exists. Its API
+# key (stalwart-api-token) can only be created afterwards, in normal mode.
 components:
   - recovery
 
