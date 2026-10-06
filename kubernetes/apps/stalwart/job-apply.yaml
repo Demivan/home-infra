@@ -37,6 +37,9 @@ spec:
             - name: plan
               mountPath: /plan
               readOnly: true
+            # stalwart-cli refuses to start unless it can write under $HOME.
+            - name: home
+              mountPath: /home/nonroot
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -52,3 +55,5 @@ spec:
         - name: plan
           configMap:
             name: stalwart-plan
+        - name: home
+          emptyDir: {}

@@ -11,7 +11,7 @@ spec:
   # ports (stalwart-mail Service) and every record Stalwart publishes point at it.
   infrastructure:
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: mail.demivan.me
+      external-dns.kubernetes.io/hostname: mail.demivan.me
   listeners:
     - name: https
       protocol: HTTPS
