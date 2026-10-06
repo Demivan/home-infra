@@ -18,7 +18,6 @@ spec:
       priorityClassName: app-default
       containers:
         - name: navidrome
-          # renovate: datasource=docker depName=deluan/navidrome
           image: deluan/navidrome:0.63.2
           ports:
             - name: http

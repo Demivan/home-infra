@@ -44,7 +44,6 @@ spec:
               mountPath: /downloads
       containers:
         - name: slskd
-          # renovate: datasource=docker depName=slskd/slskd
           image: slskd/slskd:0.26.0
           ports:
             - name: http

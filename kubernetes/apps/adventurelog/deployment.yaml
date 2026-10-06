@@ -31,7 +31,6 @@ spec:
         # `grep` guards the patch: if upstream changes the line, this container
         # fails loudly rather than silently leaving OIDC broken.
         - name: patch-nginx-forwarded-proto
-          # renovate: datasource=docker depName=ghcr.io/seanmorley15/adventurelog
           image: ghcr.io/seanmorley15/adventurelog:v0.13.0
           command:
             - /bin/bash
@@ -55,7 +54,6 @@ spec:
         - name: adventurelog
           # All-in-one image: nginx on :80 fronting the SvelteKit frontend
           # (:3000) and the Django/gunicorn backend (:8000).
-          # renovate: datasource=docker depName=ghcr.io/seanmorley15/adventurelog
           image: ghcr.io/seanmorley15/adventurelog:v0.13.0
           ports:
             - name: http

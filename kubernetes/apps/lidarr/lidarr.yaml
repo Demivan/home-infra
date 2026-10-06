@@ -31,7 +31,6 @@ spec:
       priorityClassName: app-default
       containers:
         - name: lidarr
-          # renovate: datasource=docker depName=lscr.io/linuxserver/lidarr
           image: lscr.io/linuxserver/lidarr:3.1.0.4875-ls35
           ports:
             - name: http
