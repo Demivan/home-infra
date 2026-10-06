@@ -1,5 +1,7 @@
-# The node's public IPv4. Mail traffic reaches the pods through hostPorts, so
-# there is no Service address for external-dns to read; the IP is pinned here.
+# The node's public IPv4, which the stalwart-mail LoadBalancer receives from
+# Cilium node IPAM. external-dns reads only Gateway routes and DNSEndpoints, so
+# the mail host is published from here. The mta-sts hosts come from their
+# HTTPRoute on the public gateway.
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:
@@ -8,16 +10,6 @@ metadata:
 spec:
   endpoints:
     - dnsName: mail.demivan.me
-      recordType: A
-      recordTTL: 3600
-      targets:
-        - 46.224.162.75
-    - dnsName: mta-sts.demivan.me
-      recordType: A
-      recordTTL: 3600
-      targets:
-        - 46.224.162.75
-    - dnsName: mta-sts.lab.demivan.me
       recordType: A
       recordTTL: 3600
       targets:

@@ -5,7 +5,7 @@ metadata:
   namespace: stalwart
 spec:
   replicas: 1
-  # hostPorts and the RWO RocksDB volume both forbid a second pod.
+  # RocksDB allows one process per data directory.
   strategy:
     type: Recreate
   selector:
@@ -30,22 +30,17 @@ spec:
       containers:
         - name: stalwart
           image: stalwartlabs/stalwart:v0.16.25
-          # Mail ports are hostPorts on the node's public IP (Hetzner firewall
-          # rules in terraform/main.tf). Cilium's hostPort path keeps the client
-          # source IP, which SPF, DNSBL and rate limiting depend on.
+          # Listeners keep the standard ports: Stalwart's default SMTP rules
+          # key off `local_port` (25 is inbound MX, anything else is submission).
           ports:
             - name: smtp
               containerPort: 25
-              hostPort: 25
             - name: submissions
               containerPort: 465
-              hostPort: 465
             - name: submission
               containerPort: 587
-              hostPort: 587
             - name: imaps
               containerPort: 993
-              hostPort: 993
             - name: http
               containerPort: 8080
           env:

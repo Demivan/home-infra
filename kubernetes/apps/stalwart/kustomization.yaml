@@ -8,10 +8,11 @@ resources:
   - pvc-data.yaml
   - deployment.yaml
   - service.yaml
+  - service-mail.yaml
   - httproute.yaml
+  - httproute-mta-sts.yaml
   - job-apply.yaml
   - cronjob-reload-tls.yaml
-  - mta-sts.yaml
   - dnsendpoint.yaml
   - schedule.yaml
 
@@ -30,11 +31,3 @@ configMapGenerator:
     namespace: stalwart
     files:
       - config/plan.ndjson
-  - name: mta-sts-nginx
-    namespace: stalwart
-    files:
-      - config/mta-sts.conf
-  - name: mta-sts-policy
-    namespace: stalwart
-    files:
-      - config/mta-sts.txt

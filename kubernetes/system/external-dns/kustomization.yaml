@@ -21,8 +21,8 @@ helmCharts:
         - demivan.me
       sources:
         - gateway-httproute
-        # DNSEndpoint objects, for records with no Gateway or Service behind
-        # them (Stalwart's hostPort-exposed mail host).
+        # DNSEndpoint objects, for records with no Gateway route behind them
+        # (Stalwart's mail host on its node-IPAM LoadBalancer).
         - crd
       policy: sync
       txtOwnerId: homelab

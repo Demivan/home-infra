@@ -103,8 +103,8 @@ module "talos" {
       source_ips  = ["0.0.0.0/0", "::/0"]
     },
     {
-      # Stalwart mail ports (hostPorts on the node): inbound SMTP, implicit-TLS
-      # and STARTTLS submission, IMAPS.
+      # Stalwart mail ports (a node-IPAM LoadBalancer on the node IP): inbound
+      # SMTP, implicit-TLS and STARTTLS submission, IMAPS.
       description = "SMTP"
       direction   = "in"
       protocol    = "tcp"

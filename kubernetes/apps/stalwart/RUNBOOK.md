@@ -3,13 +3,13 @@
 Stalwart v0.16 keeps almost all configuration in its database. The repo holds:
 
 - `config/config.json`: the datastore definition (RocksDB on the `stalwart-data` PVC). This is the only setting read from disk.
-- `config/plan.ndjson`: everything else (domains, listeners, certificate, DKIM, relay route, logging), reconciled by the `stalwart-apply` PostSync Job with `stalwart-cli apply`. Edit the plan, merge, and ArgoCD reapplies it. Objects of types the plan `reconcile`s (DKIM signatures, listeners, relay routes, tracers) are deleted when dropped from the plan. `upsert`ed types are never deleted by the Job.
+- `config/plan.ndjson`: everything else (domains, listeners, certificate, DKIM, relay route, MTA-STS policy, logging), reconciled by the `stalwart-apply` PostSync Job with `stalwart-cli apply`. Edit the plan, merge, and ArgoCD reapplies it. Objects of types the plan `reconcile`s (DKIM signatures, listeners, relay routes, tracers) are deleted when dropped from the plan. `upsert`ed types are never deleted by the Job.
 - Accounts are **not** in the plan. They are directory data, managed through the CLI or WebUI.
 
 | Endpoint | Exposure |
 |---|---|
-| SMTP 25, submissions 465, submission 587, IMAPS 993 | Public, hostPorts on `46.224.162.75` (`mail.demivan.me`) |
-| MTA-STS policy, 443 | Public, `mta-sts` nginx pod, serves only `/.well-known/mta-sts.txt` |
+| SMTP 25, submissions 465, submission 587, IMAPS 993 | Public: the `stalwart-mail` LoadBalancer gets the node IP `46.224.162.75` (`mail.demivan.me`) from Cilium node IPAM |
+| MTA-STS policy, 443 | Public: the `public` Cilium Gateway routes only `mta-sts.*/.well-known/mta-sts.txt` to Stalwart, which generates the policy from the `MtaSts` object in the plan |
 | JMAP, WebUI `/admin`, self-service `/account` | Tailnet only: `https://mail.home.demivan.me` |
 
 Commands below use `stalwart-cli` from the devShell against a port-forward, authenticating with `STALWART_TOKEN` (or `STALWART_USER`/`STALWART_PASSWORD`):
@@ -26,7 +26,7 @@ export STALWART_URL=http://localhost:8080
 
 | Key | Content | How to generate |
 |---|---|---|
-| `stalwart-recovery-admin-password` | Recovery admin password (username is `recovery`) | `openssl rand -base64 32` |
+| `stalwart-recovery-admin-password` | Recovery admin password (username is `recovery`), no trailing newline | `openssl rand -hex 24` |
 | `stalwart-dkim-s2026a-rsa` | RSA-2048 PEM private key | `openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048` |
 | `stalwart-dkim-s2026a-ed25519` | Ed25519 PEM private key | `openssl genpkey -algorithm ED25519` |
 | `stalwart-relay-password` | Relay SMTP password. Any placeholder until a relay is chosen (the secret must exist) | From the relay provider |
@@ -34,15 +34,16 @@ export STALWART_URL=http://localhost:8080
 
 Encryption at rest has no server-side secret: each user uploads their own public key (see "Encryption at rest").
 
-`infisical secrets set` prints values in plain text, so redirect its output:
+Multi-line values go in with the `name=@file` form. Discard the command's output, which can include the values:
 
 ```bash
-infisical secrets set --env=prod --path=/ "stalwart-dkim-s2026a-rsa=$(cat s2026a-rsa.pem)" >/dev/null 2>&1 && echo ok
+infisical secrets set --env=prod --path=/ stalwart-dkim-s2026a-rsa=@s2026a-rsa.pem >/dev/null 2>&1 && echo ok
 ```
 
 ## First deployment (order matters)
 
 1. **Prerequisites before merging**
+   - The Cilium change that enables node IPAM and adds the `public` Gateway is merged and synced. Without it the `stalwart-mail` LoadBalancer stays pending and the MTA-STS route has no parent.
    - Create the four Infisical keys above (everything except `stalwart-api-token`).
    - Apply the Hetzner firewall rules for 25/465/587/993 in `terraform/main.tf` through HCP Terraform. Read the plan: abort if it touches the control-plane `alias_ips`.
    - Set reverse DNS in the Hetzner Console: Server → Networking → Primary IPv4 `46.224.162.75` → `mail.demivan.me`. Do the same for the primary IPv6 if AAAA records are ever published.
@@ -73,16 +74,22 @@ infisical secrets set --env=prod --path=/ "stalwart-dkim-s2026a-rsa=$(cat s2026a
 
 ## DNS records
 
-external-dns creates `A mail.demivan.me`, `A mta-sts.demivan.me` and `A mta-sts.lab.demivan.me` (all `46.224.162.75`) from `dnsendpoint.yaml`. Add everything else by hand in Cloudflare, with proxying **off** (DNS only).
+external-dns creates `A mail.demivan.me` from `dnsendpoint.yaml`, and `A mta-sts.lab.demivan.me` / `A mta-sts.demivan.me` from the `mta-sts` HTTPRoute (the public Gateway's address). All are `46.224.162.75`. Add everything else by hand in Cloudflare, with proxying **off** (DNS only).
 
 DKIM `p=` values come from the private keys. These commands produce the same values Stalwart prints with `stalwart-cli get Domain <id> --fields dnsZoneFile`:
 
 ```bash
-openssl pkey -in s2026a-rsa.pem -pubout -outform DER | base64 -w0
+openssl pkey -in s2026a-rsa.pem -pubout -outform DER | openssl base64 -A
 ```
 
 ```bash
-openssl pkey -in s2026a-ed25519.pem -pubout -outform DER | tail -c 32 | base64 -w0
+openssl pkey -in s2026a-ed25519.pem -pubout -outform DER | tail -c 32 | openssl base64 -A
+```
+
+The `_mta-sts` id is Stalwart's. It is stable across restarts and changes whenever the `MtaSts` object changes, which is what tells senders to refetch the policy. After any `MtaSts` change, copy the new value into the TXT record:
+
+```bash
+stalwart-cli get Domain <id> --fields dnsZoneFile | grep _mta-sts
 ```
 
 ### Staging: `lab.demivan.me`
@@ -94,7 +101,7 @@ openssl pkey -in s2026a-ed25519.pem -pubout -outform DER | tail -c 32 | base64 -
 | TXT | `s2026a-rsa._domainkey.lab.demivan.me` | `v=DKIM1; k=rsa; p=<rsa p>` |
 | TXT | `s2026a-ed._domainkey.lab.demivan.me` | `v=DKIM1; k=ed25519; p=<ed25519 p>` |
 | TXT | `_dmarc.lab.demivan.me` | `v=DMARC1; p=none; rua=mailto:postmaster@lab.demivan.me` |
-| TXT | `_mta-sts.lab.demivan.me` | `v=STSv1; id=2026100601` (bump the id whenever `config/mta-sts.txt` changes) |
+| TXT | `_mta-sts.lab.demivan.me` | `v=STSv1; id=<id from the zone file>` |
 | TXT | `_smtp._tls.lab.demivan.me` | `v=TLSRPTv1; rua=mailto:postmaster@lab.demivan.me` |
 | SRV | `_submissions._tcp.lab.demivan.me` | `0 1 465 mail.demivan.me` |
 | SRV | `_submission._tcp.lab.demivan.me` | `0 1 587 mail.demivan.me` |
@@ -221,13 +228,13 @@ Run against `lab.demivan.me` first; repeat the inbound/outbound items for `demiv
 
 - [ ] `nc -vz mail.demivan.me 25` (and 465, 587, 993) from outside the tailnet. `openssl s_client -starttls smtp -connect mail.demivan.me:25` shows the Let's Encrypt cert for `mail.demivan.me`.
 - [ ] Banner/EHLO reply is `mail.demivan.me`, and `dig -x 46.224.162.75` returns `mail.demivan.me`.
-- [ ] Received header of an inbound message shows the real sender IP, not a cluster address (hostPort keeps client IPs).
+- [ ] Received header of an inbound message shows the real sender IP, not a cluster address (`externalTrafficPolicy: Local` on `stalwart-mail` keeps client IPs).
 - [ ] Inbound from Gmail and from Outlook.com reaches the INBOX (`Authentication-Results` shows spf/dkim/dmarc pass).
 - [ ] Outbound to Gmail and Outlook.com via the relay. In the received message, `DKIM-Signature` headers with `d=lab.demivan.me; s=s2026a-rsa` and `s=s2026a-ed` verify (Gmail "Show original": DKIM PASS with `lab.demivan.me`), alongside any relay signature.
 - [ ] mail-tester.com: send via the relay and reach 10/10.
 - [ ] Thunderbird: IMAP login on 993 and send on 465/587 with autoconfig via SRV records.
 - [ ] JMAP: `curl -u user@lab.demivan.me https://mail.home.demivan.me/.well-known/jmap -L` returns a session object (tailnet).
-- [ ] `curl https://mta-sts.lab.demivan.me/.well-known/mta-sts.txt` returns the policy; any other path returns 404.
+- [ ] `curl https://mta-sts.lab.demivan.me/.well-known/mta-sts.txt` returns the policy; `curl https://mta-sts.lab.demivan.me/admin` and `curl -k --resolve mail.demivan.me:443:46.224.162.75 https://mail.demivan.me/` return 404 from the gateway.
 - [ ] Failure handling: with the relay unreachable (the placeholder), a submitted message stays in `query QueuedMessage` with a growing retry count rather than bouncing. Unknown local recipients get `550 5.1.2` at RCPT time (intended permanent rejection, not a bounce later).
 - [ ] Encryption at rest: after enabling it for a test user, a newly delivered message fetched over IMAP is `multipart/encrypted`.
 - [ ] Backup: next morning, `kubectl -n stalwart get backups.k8up.io` shows a completed run.
@@ -240,7 +247,7 @@ Run against `lab.demivan.me` first; repeat the inbound/outbound items for `demiv
    - Add `s2026a-rsa` and `s2026a-ed` `DkimSignature` entries for it (same key files, `domainId` `#<new domain ref>`).
    - Point `SystemSettings.defaultDomainId` at it.
 3. Publish the production DNS records, disable Email Routing, and switch MX.
-4. Re-run the checklist for `demivan.me`. After a week of clean DMARC/TLS-RPT reports, consider `mode: enforce` in `config/mta-sts.txt` (bump the `_mta-sts` id) and a stricter DMARC policy.
+4. Re-run the checklist for `demivan.me`. After a week of clean DMARC/TLS-RPT reports, consider `"mode": "enforce"` on the `MtaSts` line of `plan.ndjson` (then update the `_mta-sts` id) and a stricter DMARC policy.
 
 ## Operational notes
 

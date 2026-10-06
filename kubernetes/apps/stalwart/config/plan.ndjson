@@ -6,6 +6,7 @@
 {"@type":"update","object":"MtaOutboundStrategy","value":{"route":{"match":{"0":{"if":"is_local_domain(rcpt_domain)","then":"'local'"}},"else":"'relay'"}}}
 {"@type":"update","object":"Email","value":{"encryptAtRest":true,"encryptOnAppend":false}}
 {"@type":"update","object":"Http","value":{"useXForwarded":true}}
+{"@type":"update","object":"MtaSts","value":{"mode":"testing","maxAge":86400000,"mxHosts":{"mail.demivan.me":true}}}
 {"@type":"update","object":"SystemSettings","value":{"defaultHostname":"mail.demivan.me","defaultDomainId":"#lab","defaultCertificateId":"#mail","mailExchangers":{"0":{"priority":10,"hostname":"mail.demivan.me"}},"services":{"imap":{"hostname":"mail.demivan.me","cleartext":false},"smtp":{"hostname":"mail.demivan.me","cleartext":false},"jmap":{"hostname":"mail.home.demivan.me","cleartext":false}}}}
 {"@type":"reconcile","object":"Tracer","matchOn":["@type"],"value":{"stdout":{"@type":"Stdout","level":"info","ansi":false,"buffered":false}}}
 {"@type":"create","object":"Action","value":{"reload":{"@type":"ReloadSettings"}}}
