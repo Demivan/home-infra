@@ -7,7 +7,6 @@ helmCharts:
     version: "1.22.0"
     releaseName: external-dns
     namespace: external-dns
-    includeCRDs: true
     valuesInline:
       provider:
         name: cloudflare
@@ -21,9 +20,9 @@ helmCharts:
         - demivan.me
       sources:
         - gateway-httproute
-        # DNSEndpoint objects, for records with no Gateway route behind them
-        # (Stalwart's mail host on its node-IPAM LoadBalancer).
-        - crd
+        # Only Services carrying an external-dns hostname annotation get a
+        # record (the public Gateway's Service publishes mail.demivan.me).
+        - service
       policy: sync
       txtOwnerId: homelab
       priorityClassName: platform

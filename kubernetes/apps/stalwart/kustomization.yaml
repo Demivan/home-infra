@@ -13,7 +13,6 @@ resources:
   - httproute-mta-sts.yaml
   - job-apply.yaml
   - cronjob-reload-tls.yaml
-  - dnsendpoint.yaml
   - schedule.yaml
 
 # Bootstrap phase: drop this once the postmaster API key is in Infisical

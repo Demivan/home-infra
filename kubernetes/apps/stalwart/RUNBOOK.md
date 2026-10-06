@@ -6,7 +6,7 @@ Stalwart v0.16 keeps almost all configuration in its database. The repo holds:
 - `config/plan.ndjson`: everything else (DNS provider, domains, listeners, certificate, relay route, MTA-STS policy, logging), reconciled by the `stalwart-apply` PostSync Job with `stalwart-cli apply`. Edit the plan, merge, and ArgoCD reapplies it. Objects of types the plan `reconcile`s (listeners, relay routes, tracers) are deleted when dropped from the plan. `upsert`ed types are never deleted by the Job.
 - Accounts are **not** in the plan. They are directory data, managed through the CLI or WebUI.
 
-Stalwart owns its own DNS records and DKIM keys: it publishes them to Cloudflare and rotates the keys (see "DNS records"). The only records outside its control are `A mail.demivan.me` (external-dns) and the PTR (Hetzner).
+Stalwart owns its own DNS records and DKIM keys: it publishes them to Cloudflare and rotates the keys (see "DNS records"). The only records outside its control are `A mail.demivan.me` (external-dns, from the public Gateway Service's address) and the PTR (Hetzner).
 
 | Endpoint | Exposure |
 |---|---|
@@ -49,7 +49,7 @@ infisical secrets set --env=prod --path=/ stalwart-relay-password=placeholder >/
    - Apply the Hetzner firewall rules for 25/465/587/993 in `terraform/main.tf` through HCP Terraform. Read the plan: abort if it touches the control-plane `alias_ips`.
    - Set reverse DNS in the Hetzner Console: Server → Networking → Primary IPv4 `46.224.162.75` → `mail.demivan.me`. Do the same for the primary IPv6 if AAAA records are ever published.
 2. **Merge.** `kustomization.yaml` includes the `recovery` component, so Stalwart starts in recovery mode: no mail listeners, no background tasks, management API on :8080 only.
-   - Sync `external-dns` before `stalwart`, because the DNSEndpoint CRD comes from the external-dns app. If `stalwart` synced first and failed on the DNSEndpoint, sync it again.
+   - external-dns publishes `A mail.demivan.me` from the public Gateway's Service address as soon as its own app syncs (`dig +short mail.demivan.me`).
    - The `stalwart-apply` PostSync Job loads the plan as the recovery admin. Check it with `kubectl -n stalwart logs job/stalwart-apply`.
 3. **Create the admin account** while still in recovery mode, signing in as the recovery admin. Store the password in Vaultwarden.
 
@@ -230,7 +230,7 @@ Adding the domain to the plan is the cutover: Stalwart immediately replaces the 
 - **Startup egress:** Stalwart downloads its WebUI bundle and ASN/geo data from GitHub at startup, and spam-filter rule updates on a schedule. If GitHub is unreachable, the WebUI may be missing, but mail still flows.
 - **Cloudflare access:** Stalwart holds a token that can edit the whole `demivan.me` zone. It only writes the record types in `publishRecords` under its domains' names.
 - **Backups:** the `stalwart-data` PVC is covered by the k8up `backup` Schedule (restic → B2, nightly 03:45). It holds the DKIM private keys too. It is a file-level copy of a live RocksDB directory, not an application-consistent snapshot. See the follow-up below.
-- **The node IP is pinned** in `dnsendpoint.yaml`. Recreating the server (new IP) requires updating it, the PTR, and every relay or allowlist entry.
+- **No IP is pinned in git.** `A mail.demivan.me` follows the public Gateway Service's node-IPAM address (annotation in `system/cilium-gateway/public-gateway.yaml`). Recreating the server with a new IP still needs a new PTR and updates to any relay or allowlist entries.
 
 ## Follow-ups
 

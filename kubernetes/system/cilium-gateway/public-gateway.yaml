@@ -5,6 +5,13 @@ metadata:
   namespace: cilium-gateway
 spec:
   gatewayClassName: cilium-public
+  # Cilium copies these onto the Gateway's LoadBalancer Service, whose address
+  # is the node's public IP and, under externalTrafficPolicy Cluster, never
+  # depends on pod readiness. mail.demivan.me names that IP: Stalwart's mail
+  # ports (stalwart-mail Service) and every record Stalwart publishes point at it.
+  infrastructure:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: mail.demivan.me
   listeners:
     - name: https
       protocol: HTTPS
