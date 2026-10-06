@@ -20,6 +20,9 @@ helmCharts:
         - demivan.me
       sources:
         - gateway-httproute
+        # Only Services carrying an external-dns hostname annotation get a
+        # record (the public Gateway's Service publishes mail.demivan.me).
+        - service
       policy: sync
       txtOwnerId: homelab
       priorityClassName: platform

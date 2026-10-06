@@ -1,0 +1,47 @@
+# Stalwart reads certificate files only at load time. cert-manager renews 30
+# days before expiry, so a weekly reload picks up the new files well in time.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: stalwart-reload-tls
+  namespace: stalwart
+spec:
+  schedule: "15 4 * * 2"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: reload
+              image: stalwartlabs/cli:1.0.13
+              args: ["create", "Action/ReloadTlsCertificates"]
+              env:
+                - name: STALWART_URL
+                  value: http://stalwart.stalwart.svc:8080
+                - name: STALWART_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: stalwart-api
+                      key: token
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi

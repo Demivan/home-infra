@@ -27,6 +27,7 @@
               velero
               rustic
               hcloud
+              stalwart-cli
               gh
               # backblaze-b2  # TODO: broken in nixpkgs, add back for operations plan
               ripgrep

@@ -1,0 +1,54 @@
+# Reconciles Stalwart's database-held configuration to config/plan.ndjson.
+# Runs after every sync; the plan's ConfigMap name carries a content hash, so
+# editing the plan is what makes the app OutOfSync and triggers a sync.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: stalwart-apply
+  namespace: stalwart
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 86400
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: apply
+          image: stalwartlabs/cli:1.0.13
+          args: ["apply", "--file", "/plan/plan.ndjson"]
+          env:
+            - name: STALWART_URL
+              value: http://stalwart.stalwart.svc:8080
+            - name: STALWART_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: stalwart-api
+                  key: token
+          volumeMounts:
+            - name: plan
+              mountPath: /plan
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+      volumes:
+        - name: plan
+          configMap:
+            name: stalwart-plan

@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - externalsecret.yaml
+  - certificate.yaml
+  - pvc-data.yaml
+  - deployment.yaml
+  - service.yaml
+  - service-mail.yaml
+  - httproute.yaml
+  - httproute-mta-sts.yaml
+  - job-apply.yaml
+  - cronjob-reload-tls.yaml
+  - schedule.yaml
+
+# Bootstrap phase: drop this once the postmaster admin account exists. Its API
+# key (stalwart-api-token) can only be created afterwards, in normal mode.
+components:
+  - recovery
+
+configMapGenerator:
+  # Only the datastore lives on disk; everything else is in plan.ndjson.
+  - name: stalwart-config
+    namespace: stalwart
+    files:
+      - config/config.json
+  - name: stalwart-plan
+    namespace: stalwart
+    files:
+      - config/plan.ndjson
