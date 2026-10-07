@@ -11,3 +11,6 @@ spec:
   dnsNames:
     - mta-sts.demivan.me
     - autoconfig.demivan.me
+    # No route serves it; mail clients probe https:// on their IMAP host after
+    # account setup and warn on a name mismatch rather than a 404.
+    - mail.demivan.me
