@@ -11,6 +11,7 @@ resources:
   - service-mail.yaml
   - httproute.yaml
   - httproute-mta-sts.yaml
+  - httproute-autoconfig.yaml
   - job-apply.yaml
   - cronjob-reload-tls.yaml
   - schedule.yaml

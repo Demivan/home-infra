@@ -60,9 +60,6 @@ spec:
             - name: cloudflare
               mountPath: /run/stalwart/cloudflare
               readOnly: true
-            - name: relay
-              mountPath: /run/stalwart/relay
-              readOnly: true
             - name: tmp
               mountPath: /tmp
           securityContext:
@@ -122,8 +119,5 @@ spec:
         - name: cloudflare
           secret:
             secretName: stalwart-cloudflare
-        - name: relay
-          secret:
-            secretName: stalwart-relay
         - name: tmp
           emptyDir: {}
