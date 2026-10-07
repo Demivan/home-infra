@@ -10,3 +10,4 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - mta-sts.demivan.me
+    - autoconfig.demivan.me
