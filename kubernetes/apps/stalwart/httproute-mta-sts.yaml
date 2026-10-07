@@ -16,7 +16,6 @@ spec:
       namespace: cilium-gateway
       sectionName: https
   hostnames:
-    - mta-sts.lab.demivan.me
     - mta-sts.demivan.me
   rules:
     - matches:

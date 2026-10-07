@@ -10,4 +10,3 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - mta-sts.demivan.me
-    - mta-sts.lab.demivan.me
