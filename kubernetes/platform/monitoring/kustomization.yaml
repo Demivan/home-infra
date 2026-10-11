@@ -129,7 +129,7 @@ helmCharts:
             memory: 512Mi
         # Login is OIDC-only. Without an admin account the sidecars can't call
         # the reload API: dashboards rely on Grafana re-scanning provisioned
-        # files, datasources are written by an init container before start.
+        # files, datasources are written by a native sidecar before start.
         env:
           GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "true"
         sidecar:
@@ -138,6 +138,16 @@ helmCharts:
           datasources:
             initDatasources: true
             skipReload: true
+            # The sidecar watches and never exits; as a plain init container it
+            # would block the pod forever.
+            restartPolicy: Always
+            # Holds Grafana back until the initial datasource sync is written.
+            startupProbe:
+              httpGet:
+                path: /healthz
+                port: 8082
+              periodSeconds: 2
+              failureThreshold: 30
         envFromSecrets:
           - name: grafana-oidc
             optional: false
