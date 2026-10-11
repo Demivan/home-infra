@@ -124,9 +124,20 @@ helmCharts:
         resources:
           requests:
             cpu: 50m
-            memory: 128Mi
-          limits:
             memory: 256Mi
+          limits:
+            memory: 512Mi
+        # Login is OIDC-only. Without an admin account the sidecars can't call
+        # the reload API: dashboards rely on Grafana re-scanning provisioned
+        # files, datasources are written by an init container before start.
+        env:
+          GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "true"
+        sidecar:
+          dashboards:
+            skipReload: true
+          datasources:
+            initDatasources: true
+            skipReload: true
         envFromSecrets:
           - name: grafana-oidc
             optional: false
