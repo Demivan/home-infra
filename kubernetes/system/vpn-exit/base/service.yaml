@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vpn-exit
+  namespace: vpn-exit
+spec:
+  clusterIP: None
+  selector:
+    app: vpn-exit
+  ports:
+    - name: control
+      port: 8000
+      targetPort: 8000

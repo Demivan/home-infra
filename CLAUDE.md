@@ -56,6 +56,7 @@ infra/
 │   │   ├── democratic-csi/  # democratic-csi local-hostpath + smb-client (Storage Box)
 │   │   ├── cnpg-system/     # CloudNativePG operator
 │   │   ├── tailscale/       # Tailscale operator + ExternalSecret + Connector (subnet router)
+│   │   ├── vpn-exit/        # Tailscale exit nodes routed through gluetun, one StatefulSet per location
 │   │   └── common/          # Priority classes
 │   └── apps/                # immich, ocis, vaultwarden, radicale, minecraft, adventurelog
 ├── docs/                    # Architecture docs, plans

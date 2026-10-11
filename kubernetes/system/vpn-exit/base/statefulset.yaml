@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vpn-exit
+  namespace: vpn-exit
+spec:
+  replicas: 1
+  serviceName: vpn-exit
+  selector:
+    matchLabels:
+      app: vpn-exit
+  template:
+    metadata:
+      labels:
+        app: vpn-exit
+    spec:
+      priorityClassName: platform
+      serviceAccountName: vpn-exit
+      # Resolve through gluetun's DNS-over-TLS server so that DNS for exit-node
+      # clients travels inside the tunnel. Cluster DNS would send it out over the
+      # node's own uplink instead.
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 127.0.0.1
+      # tailscaled reaches the API server by name, which gluetun's public resolver
+      # cannot answer. /etc/hosts is consulted first and the API server's cert
+      # carries these as SANs, so TLS still verifies.
+      hostAliases:
+        - ip: "10.0.8.1"
+          hostnames:
+            - kubernetes.default.svc
+            - kubernetes.default.svc.cluster.local
+            - kubernetes.default
+      initContainers:
+        - name: netprep
+          # renovate: datasource=docker depName=ghcr.io/tailscale/tailscale
+          image: ghcr.io/tailscale/tailscale:v1.102.3
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              sysctl -w net.ipv4.ip_forward=1
+              if sysctl net.ipv6.conf.all.forwarding 2>/dev/null; then
+                sysctl -w net.ipv6.conf.all.forwarding=1
+              fi
+              # gluetun claims priority 101 for "everything unmarked goes down the
+              # tunnel", which swallows replies addressed to tailnet peers before
+              # tailscaled's own rule at 5270 is ever consulted.
+              ip rule add to 100.64.0.0/10 lookup 52 priority 90 || true
+              ip -6 rule add to fd7a:115c:a1e0::/48 lookup 52 priority 90 || true
+          securityContext:
+            privileged: true
+        # Sidecar rather than a plain container: gluetun owns the default route and
+        # the pod's only resolver, so its startupProbe must pass before tailscaled runs.
+        - name: gluetun
+          # renovate: datasource=docker depName=qmcgaw/gluetun
+          image: qmcgaw/gluetun:v3.41.3
+          restartPolicy: Always
+          envFrom:
+            - secretRef:
+                name: vpn-common
+          env:
+            - name: VPN_TYPE
+              value: wireguard
+            # tailscaled's encrypted output is tailscale0's 1280 plus 60 bytes of
+            # WireGuard/UDP/IP and has to fit inside this tunnel; this tunnel's own
+            # packets plus the same 60 have to fit inside eth0's 1450.
+            - name: WIREGUARD_MTU
+              value: "1380"
+            - name: SERVER_COUNTRIES
+              valueFrom:
+                configMapKeyRef:
+                  name: vpn-location
+                  key: SERVER_COUNTRIES
+            # Cluster CIDRs must stay off the tunnel, or tailscaled cannot reach
+            # the API server to persist its node state.
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "10.0.8.0/21,10.0.16.0/20"
+            # Keep in step with the memory limit below — the GC collects harder as
+            # the heap nears this, instead of growing into the kill.
+            - name: GOMEMLIMIT
+              value: "900MiB"
+          # ip rules for table 51820 outlive the container inside the pod netns, and
+          # gluetun refuses to re-add them, so a restart crash-loops without this.
+          # https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/kubernetes.md
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - "(ip rule del table 51820; ip -6 rule del table 51820) || true"
+          startupProbe:
+            exec:
+              command: ["/gluetun-entrypoint", "healthcheck"]
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            exec:
+              command: ["/gluetun-entrypoint", "healthcheck"]
+            periodSeconds: 30
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 1Gi
+      containers:
+        - name: tailscale
+          # renovate: datasource=docker depName=ghcr.io/tailscale/tailscale
+          image: ghcr.io/tailscale/tailscale:v1.102.3
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: TS_KUBE_SECRET
+              value: $(POD_NAME)
+            - name: TS_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: vpn-location
+                  key: TS_HOSTNAME
+            - name: TS_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-oauth
+                  key: client_id
+            - name: TS_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-oauth
+                  key: client_secret
+            - name: TS_USERSPACE
+              value: "false"
+            - name: TS_ACCEPT_DNS
+              value: "false"
+            - name: TS_EXTRA_ARGS
+              value: "--advertise-exit-node --advertise-tags=tag:k8s"
+            # Autodetection lands on legacy iptables, which has no working tables in
+            # this container, so tailscaled's forwarding chains are never created.
+            # gluetun writes its rules through the nft backend.
+            - name: TS_DEBUG_FIREWALL_MODE
+              value: nftables
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
