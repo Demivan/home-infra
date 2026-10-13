@@ -35,7 +35,7 @@ spec:
       initContainers:
         - name: netprep
           # renovate: datasource=docker depName=ghcr.io/tailscale/tailscale
-          image: ghcr.io/tailscale/tailscale:v1.102.5
+          image: ghcr.io/tailscale/tailscale:v1.104.1
           command: ["/bin/sh", "-c"]
           args:
             - |
@@ -110,7 +110,7 @@ spec:
       containers:
         - name: tailscale
           # renovate: datasource=docker depName=ghcr.io/tailscale/tailscale
-          image: ghcr.io/tailscale/tailscale:v1.102.5
+          image: ghcr.io/tailscale/tailscale:v1.104.1
           env:
             - name: POD_NAME
               valueFrom:
