@@ -28,6 +28,6 @@
                 options:
                   maximumFractionDigits: 0
             - label: Alerts
-              query: count(ALERTS{alertstate="firing", alertname!="Watchdog"}) or vector(0)
+              query: count(ALERTS{alertstate="firing", severity=~"warning|critical"}) or vector(0)
               format:
                 type: number

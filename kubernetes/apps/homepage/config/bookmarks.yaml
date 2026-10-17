@@ -7,7 +7,7 @@
           href: https://console.hetzner.cloud/
     - Infisical:
         - icon: sh-infisical-light.svg
-          href: https://app.infisical.com/
+          href: https://eu.infisical.com/
     - Tailscale:
         - icon: sh-tailscale-light.svg
           href: https://login.tailscale.com/admin/machines
