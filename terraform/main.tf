@@ -34,7 +34,7 @@ provider "infisical" {
 
 data "infisical_secrets" "main" {
   env_slug     = "prod"
-  workspace_id = "41eab2df-3208-4fff-a0aa-036970ba8b6f"
+  workspace_id = "15911410-c468-4464-953a-97f289d4caa0"
   folder_path  = "/"
 }
 
