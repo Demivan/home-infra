@@ -29,7 +29,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: stalwart
-          image: stalwartlabs/stalwart:v0.16.25
+          image: stalwartlabs/stalwart:v0.16.26
           # Listeners keep the standard ports: Stalwart's default SMTP rules
           # key off `local_port` (25 is inbound MX, anything else is submission).
           ports:
