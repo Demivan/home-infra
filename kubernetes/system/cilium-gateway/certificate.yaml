@@ -10,3 +10,4 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - "*.home.demivan.me"
+    - home.demivan.me

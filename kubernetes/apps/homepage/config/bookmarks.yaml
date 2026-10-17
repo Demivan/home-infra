@@ -1,0 +1,13 @@
+- Infra:
+    - GitHub:
+        - icon: sh-github-light.svg
+          href: https://github.com/Demivan/home-infra
+    - Hetzner:
+        - icon: sh-hetzner.svg
+          href: https://console.hetzner.cloud/
+    - Infisical:
+        - icon: sh-infisical-light.svg
+          href: https://app.infisical.com/
+    - Tailscale:
+        - icon: sh-tailscale-light.svg
+          href: https://login.tailscale.com/admin/machines

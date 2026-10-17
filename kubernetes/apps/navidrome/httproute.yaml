@@ -3,6 +3,15 @@ kind: HTTPRoute
 metadata:
   name: navidrome
   namespace: navidrome
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Navidrome
+    gethomepage.dev/description: Music
+    gethomepage.dev/group: Media
+    gethomepage.dev/weight: "10"
+    gethomepage.dev/icon: sh-navidrome.svg
+    gethomepage.dev/pod-selector: app=navidrome
+    gethomepage.dev/siteMonitor: http://navidrome.navidrome.svc:4533/ping
 spec:
   parentRefs:
     - name: internal

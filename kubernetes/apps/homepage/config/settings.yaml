@@ -1,0 +1,24 @@
+title: Home
+favicon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/homepage.svg
+theme: dark
+color: slate
+headerStyle: clean
+statusStyle: dot
+hideVersion: true
+useEqualHeights: true
+
+# Fixes group order. Cards come from `gethomepage.dev/*` annotations on each
+# app's HTTPRoute; `weight` orders them inside a group.
+layout:
+  Apps:
+    style: row
+    columns: 4
+  Media:
+    style: row
+    columns: 4
+  Platform:
+    style: row
+    columns: 4
+  Cluster:
+    style: row
+    columns: 4

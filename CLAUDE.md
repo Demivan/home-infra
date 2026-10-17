@@ -30,6 +30,7 @@ Personal Kubernetes homelab on Hetzner Cloud, managed with OpenTofu + Talos Linu
 | AdventureLog | Travel/trip log (PostGIS) | OIDC | `trips.home.demivan.me` |
 | Stalwart | Mail server (SMTP/IMAP/JMAP); mail ports public via a Cilium node-IPAM LoadBalancer; manages its own DNS records and DKIM keys | Internal directory | `mail.home.demivan.me` |
 | Minecraft GTNH | Game server (Tailscale-only) | N/A | |
+| Homepage | Dashboard; cards discovered from HTTPRoute annotations | None (tailnet-only) | `home.demivan.me` |
 
 ## Repo Structure
 
@@ -71,6 +72,7 @@ infra/
 - **Kustomize + helmCharts** — each component is a kustomization.yaml with `helmCharts:` for upstream charts and `resources:` for extra manifests. No wrapper Helm charts.
 - **ApplicationSet** (git directory generator) — auto-discovers `kubernetes/system/*` directories. Folder name = namespace (`CreateNamespace=true`). No per-app Application manifests needed.
 - **Gateway API** (HTTPRoute) — no Ingress API, no Traefik. CRDs managed in Cilium kustomization.
+- **Dashboard cards live on the route** — annotate a new app's HTTPRoute with `gethomepage.dev/*` (enabled, name, group, weight, icon, `pod-selector` matching its pods, `siteMonitor` on the in-cluster Service URL). Widget API keys go in as `{{HOMEPAGE_VAR_*}}`, never literal values.
 - **`cilium-internal` GatewayClass** — NodePort-backed (no Hetzner LB), used for all internal services via `*.home.demivan.me`
 - **`cilium-public` GatewayClass** — LoadBalancer Service with `loadBalancerClass: io.cilium/node` (Cilium Node IPAM, no Hetzner LB), so the `public` Gateway listens on the node's public IP. Routes attach only from namespaces labelled `home.demivan.me/public-gateway: allowed`; add each hostname to the `public-gateway` Certificate. `externalTrafficPolicy` must stay `Cluster` for Gateway Services.
 - **Split-horizon DNS** — CoreDNS rewrites `*.home.demivan.me` → `cilium-gateway-internal.cilium-gateway.svc.cluster.local`. Tailscale Connector advertises service CIDR `10.0.8.0/21`. Tailscale Split DNS (admin console) sends `home.demivan.me` queries to CoreDNS at `10.0.8.10`.

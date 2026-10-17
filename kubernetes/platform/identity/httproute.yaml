@@ -3,6 +3,15 @@ kind: HTTPRoute
 metadata:
   name: authentik
   namespace: identity
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Authentik
+    gethomepage.dev/description: SSO
+    gethomepage.dev/group: Platform
+    gethomepage.dev/weight: "10"
+    gethomepage.dev/icon: sh-authentik.svg
+    gethomepage.dev/pod-selector: app.kubernetes.io/name=authentik
+    gethomepage.dev/siteMonitor: http://authentik-server.identity.svc/-/health/live/
 spec:
   parentRefs:
     - name: internal

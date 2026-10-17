@@ -3,6 +3,15 @@ kind: HTTPRoute
 metadata:
   name: argocd
   namespace: argocd
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Argo CD
+    gethomepage.dev/description: GitOps
+    gethomepage.dev/group: Platform
+    gethomepage.dev/weight: "30"
+    gethomepage.dev/icon: sh-argo-cd.svg
+    gethomepage.dev/pod-selector: app.kubernetes.io/part-of=argocd
+    gethomepage.dev/siteMonitor: http://argocd-server.argocd.svc/healthz
 spec:
   parentRefs:
     - name: internal
