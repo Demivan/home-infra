@@ -1,0 +1,13 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: k8up-monitor
+  namespace: k8up
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: k8up
+      app.kubernetes.io/name: k8up
+  endpoints:
+    - port: http
+      interval: 60s
