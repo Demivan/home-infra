@@ -114,6 +114,9 @@ metadata:
     gethomepage.dev/icon: sh-lidarr.svg
     gethomepage.dev/pod-selector: app=lidarr
     gethomepage.dev/siteMonitor: http://lidarr.lidarr.svc:8686/ping
+    gethomepage.dev/widget.type: lidarr
+    gethomepage.dev/widget.url: http://lidarr.lidarr.svc:8686
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_LIDARR_API_KEY}}"
 spec:
   parentRefs:
     - name: internal

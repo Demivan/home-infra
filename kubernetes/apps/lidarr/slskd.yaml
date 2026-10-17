@@ -171,6 +171,9 @@ metadata:
     gethomepage.dev/icon: sh-slskd.svg
     gethomepage.dev/pod-selector: app=slskd
     gethomepage.dev/siteMonitor: http://slskd.lidarr.svc:5030/health
+    gethomepage.dev/widget.type: slskd
+    gethomepage.dev/widget.url: http://slskd.lidarr.svc:5030
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SLSKD_API_KEY}}"
 spec:
   parentRefs:
     - name: internal

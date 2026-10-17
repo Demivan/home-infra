@@ -14,6 +14,8 @@ helmCharts:
         cm:
           kustomize.buildOptions: --enable-helm
           admin.enabled: "false"
+          # Token-only account behind the Argo CD card on Homepage.
+          accounts.homepage: apiKey
           oidc.config: |
             name: Authentik
             issuer: https://auth.home.demivan.me/application/o/argocd/
@@ -26,6 +28,7 @@ helmCharts:
         rbac:
           policy.csv: |
             g, admin, role:admin
+            g, homepage, role:readonly
         params:
           server.insecure: true
           controller.diff.server.side: "true"

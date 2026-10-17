@@ -12,6 +12,10 @@ metadata:
     gethomepage.dev/icon: sh-authentik.svg
     gethomepage.dev/pod-selector: app.kubernetes.io/name=authentik
     gethomepage.dev/siteMonitor: http://authentik-server.identity.svc/-/health/live/
+    gethomepage.dev/widget.type: authentik
+    gethomepage.dev/widget.url: http://authentik-server.identity.svc
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_AUTHENTIK_TOKEN}}"
+    gethomepage.dev/widget.version: "2"
 spec:
   parentRefs:
     - name: internal

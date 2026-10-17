@@ -71,6 +71,21 @@ helmCharts:
               secretKeyRef:
                 name: authentik-secrets
                 key: adventurelog-oidc-client-secret
+          - name: HOMEPAGE_OIDC_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: homepage-oidc-client-id
+          - name: HOMEPAGE_OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: homepage-oidc-client-secret
+          - name: HOMEPAGE_WIDGET_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: homepage-widget-token
       authentik:
         postgresql:
           host: postgres-rw.postgres.svc
@@ -103,6 +118,7 @@ helmCharts:
           - blueprint-argocd
           - blueprint-immich
           - blueprint-adventurelog
+          - blueprint-homepage
 
 resources:
   - externalsecret.yaml
@@ -112,3 +128,4 @@ resources:
   - blueprint-argocd.yaml
   - blueprint-immich.yaml
   - blueprint-adventurelog.yaml
+  - blueprint-homepage.yaml
