@@ -12,6 +12,9 @@ metadata:
     gethomepage.dev/icon: sh-argo-cd.svg
     gethomepage.dev/pod-selector: app.kubernetes.io/part-of=argocd
     gethomepage.dev/siteMonitor: http://argocd-server.argocd.svc/healthz
+    gethomepage.dev/widget.type: argocd
+    gethomepage.dev/widget.url: http://argocd-server.argocd.svc
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_ARGOCD_TOKEN}}"
 spec:
   parentRefs:
     - name: internal

@@ -40,6 +40,72 @@ spec:
             # is what the kubelet probes send.
             - name: HOMEPAGE_ALLOWED_HOSTS
               value: "$(POD_IP):3000,home.demivan.me"
+            - name: HOMEPAGE_AUTH_ENABLED
+              value: "true"
+            - name: HOMEPAGE_EXTERNAL_URL
+              value: https://home.demivan.me
+            - name: HOMEPAGE_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: auth-secret
+            - name: HOMEPAGE_OIDC_NAME
+              value: Authentik
+            - name: HOMEPAGE_OIDC_ISSUER
+              value: https://auth.home.demivan.me/application/o/homepage/
+            - name: HOMEPAGE_OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: oidc-client-id
+            - name: HOMEPAGE_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: oidc-client-secret
+            - name: HOMEPAGE_OIDC_AUTO_LOGIN
+              value: "true"
+            # Substituted into the widget annotations of discovered HTTPRoutes.
+            - name: HOMEPAGE_VAR_IMMICH_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: immich-api-key
+            - name: HOMEPAGE_VAR_LIDARR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: lidarr-api-key
+            - name: HOMEPAGE_VAR_SLSKD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: slskd-api-key
+            - name: HOMEPAGE_VAR_NAVIDROME_USER
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: navidrome-user
+            - name: HOMEPAGE_VAR_NAVIDROME_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: navidrome-token
+            - name: HOMEPAGE_VAR_NAVIDROME_SALT
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: navidrome-salt
+            - name: HOMEPAGE_VAR_AUTHENTIK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: authentik-token
+            - name: HOMEPAGE_VAR_ARGOCD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-secrets
+                  key: argocd-token
           volumeMounts:
             # Homepage copies skeleton files for any config it doesn't find,
             # so the directory itself must be writable.
