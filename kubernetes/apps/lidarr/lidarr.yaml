@@ -105,6 +105,15 @@ kind: HTTPRoute
 metadata:
   name: lidarr
   namespace: lidarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Lidarr
+    gethomepage.dev/description: Music library
+    gethomepage.dev/group: Media
+    gethomepage.dev/weight: "20"
+    gethomepage.dev/icon: sh-lidarr.svg
+    gethomepage.dev/pod-selector: app=lidarr
+    gethomepage.dev/siteMonitor: http://lidarr.lidarr.svc:8686/ping
 spec:
   parentRefs:
     - name: internal

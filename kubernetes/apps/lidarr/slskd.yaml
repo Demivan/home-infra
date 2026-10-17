@@ -162,6 +162,15 @@ kind: HTTPRoute
 metadata:
   name: slskd
   namespace: lidarr
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: slskd
+    gethomepage.dev/description: Soulseek
+    gethomepage.dev/group: Media
+    gethomepage.dev/weight: "30"
+    gethomepage.dev/icon: sh-slskd.svg
+    gethomepage.dev/pod-selector: app=slskd
+    gethomepage.dev/siteMonitor: http://slskd.lidarr.svc:5030/health
 spec:
   parentRefs:
     - name: internal

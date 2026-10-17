@@ -3,6 +3,15 @@ kind: HTTPRoute
 metadata:
   name: adventurelog
   namespace: adventurelog
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: AdventureLog
+    gethomepage.dev/description: Trips
+    gethomepage.dev/group: Apps
+    gethomepage.dev/weight: "40"
+    gethomepage.dev/icon: sh-adventurelog.svg
+    gethomepage.dev/pod-selector: app=adventurelog
+    gethomepage.dev/siteMonitor: http://adventurelog.adventurelog.svc/
 spec:
   parentRefs:
     - name: internal

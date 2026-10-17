@@ -1,0 +1,33 @@
+# Services with an HTTPRoute are discovered from its annotations; this file
+# holds only cards that have no route of their own.
+- Cluster:
+    - Node:
+        icon: sh-kubernetes.svg
+        description: homelab
+        widget:
+          type: prometheusmetric
+          url: http://vmsingle-victoria-metrics-k8s-stack.monitoring.svc:8428
+          refreshInterval: 30000
+          metrics:
+            - label: CPU
+              query: 100 * (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])))
+              format:
+                type: percent
+                options:
+                  maximumFractionDigits: 0
+            - label: Memory
+              query: 100 * (1 - sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes))
+              format:
+                type: percent
+                options:
+                  maximumFractionDigits: 0
+            - label: Disk
+              query: 100 * (1 - sum(node_filesystem_avail_bytes{mountpoint="/var"}) / sum(node_filesystem_size_bytes{mountpoint="/var"}))
+              format:
+                type: percent
+                options:
+                  maximumFractionDigits: 0
+            - label: Alerts
+              query: count(ALERTS{alertstate="firing", alertname!="Watchdog"}) or vector(0)
+              format:
+                type: number
