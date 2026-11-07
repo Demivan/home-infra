@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mealie
+  namespace: mealie
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mealie
+  template:
+    metadata:
+      labels:
+        app: mealie
+    spec:
+      priorityClassName: app-default
+      containers:
+        - name: mealie
+          # Single image: the API on :9000 also serves the frontend.
+          image: ghcr.io/mealie-recipes/mealie:v3.30.0
+          ports:
+            - name: http
+              containerPort: 9000
+          env:
+            - name: BASE_URL
+              value: https://recipes.home.demivan.me
+            - name: TZ
+              value: Europe/Kyiv
+            - name: ALLOW_SIGNUP
+              value: "false"
+            # Authentik is the only way in; accounts are created on first
+            # OIDC login.
+            - name: ALLOW_PASSWORD_LOGIN
+              value: "false"
+            - name: DB_ENGINE
+              value: postgres
+            - name: POSTGRES_SERVER
+              value: postgres-rw.postgres.svc
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: mealie
+            - name: POSTGRES_USER
+              value: mealie
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mealie-secrets
+                  key: db-password
+            - name: OIDC_AUTH_ENABLED
+              value: "true"
+            - name: OIDC_SIGNUP_ENABLED
+              value: "true"
+            - name: OIDC_CONFIGURATION_URL
+              value: https://auth.home.demivan.me/application/o/mealie/.well-known/openid-configuration
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mealie-secrets
+                  key: oidc-client-id
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mealie-secrets
+                  key: oidc-client-secret
+            - name: OIDC_PROVIDER_NAME
+              value: Authentik
+            - name: OIDC_AUTO_REDIRECT
+              value: "true"
+            - name: OIDC_REMEMBER_ME
+              value: "true"
+            # Authentik's default `profile` scope mapping emits `groups`.
+            - name: OIDC_ADMIN_GROUP
+              value: authentik Admins
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          startupProbe:
+            httpGet:
+              path: /api/app/about
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /api/app/about
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/app/about
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mealie-data

@@ -71,6 +71,16 @@ helmCharts:
               secretKeyRef:
                 name: authentik-secrets
                 key: adventurelog-oidc-client-secret
+          - name: MEALIE_OIDC_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: mealie-oidc-client-id
+          - name: MEALIE_OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: authentik-secrets
+                key: mealie-oidc-client-secret
           - name: HOMEPAGE_OIDC_CLIENT_ID
             valueFrom:
               secretKeyRef:
@@ -118,6 +128,7 @@ helmCharts:
           - blueprint-argocd
           - blueprint-immich
           - blueprint-adventurelog
+          - blueprint-mealie
           - blueprint-homepage
 
 resources:
@@ -128,4 +139,5 @@ resources:
   - blueprint-argocd.yaml
   - blueprint-immich.yaml
   - blueprint-adventurelog.yaml
+  - blueprint-mealie.yaml
   - blueprint-homepage.yaml

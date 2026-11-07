@@ -67,3 +67,10 @@ spec:
         createdb: false
         passwordSecret:
           name: adventurelog-db-credentials
+      - name: mealie
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        passwordSecret:
+          name: mealie-db-credentials
