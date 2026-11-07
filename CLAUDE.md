@@ -28,6 +28,7 @@ Personal Kubernetes homelab on Hetzner Cloud, managed with OpenTofu + Talos Linu
 | oCIS | Google Drive replacement | OIDC | |
 | Radicale | Calendar/Contacts (CalDAV/CardDAV) | LDAP | |
 | AdventureLog | Travel/trip log (PostGIS) | OIDC | `trips.home.demivan.me` |
+| Mealie | Recipes, meal planning, cook-from-what's-on-hand finder | OIDC | `recipes.home.demivan.me` |
 | Stalwart | Mail server (SMTP/IMAP/JMAP); mail ports public via a Cilium node-IPAM LoadBalancer; manages its own DNS records and DKIM keys | Internal directory | `mail.home.demivan.me` |
 | Minecraft GTNH | Game server (Tailscale-only) | N/A | |
 | Homepage | Dashboard; cards discovered from HTTPRoute annotations | None (tailnet-only) | `home.demivan.me` |

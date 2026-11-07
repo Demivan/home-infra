@@ -1,0 +1,24 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mealie
+  namespace: mealie
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Mealie
+    gethomepage.dev/description: Recipes
+    gethomepage.dev/group: Apps
+    gethomepage.dev/weight: "50"
+    gethomepage.dev/icon: sh-mealie.svg
+    gethomepage.dev/pod-selector: app=mealie
+    gethomepage.dev/siteMonitor: http://mealie.mealie.svc/
+spec:
+  parentRefs:
+    - name: internal
+      namespace: cilium-gateway
+  hostnames:
+    - recipes.home.demivan.me
+  rules:
+    - backendRefs:
+        - name: mealie
+          port: 80
