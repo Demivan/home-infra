@@ -71,9 +71,10 @@ spec:
               value: "true"
             - name: OIDC_REMEMBER_ME
               value: "true"
-            # Authentik's default `profile` scope mapping emits `groups`.
+            # Authentik's default `profile` scope mapping emits `groups`; same
+            # admin group as Grafana and ArgoCD.
             - name: OIDC_ADMIN_GROUP
-              value: authentik Admins
+              value: admin
           volumeMounts:
             - name: data
               mountPath: /app/data
